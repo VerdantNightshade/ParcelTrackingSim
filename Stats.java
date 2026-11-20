@@ -1,4 +1,4 @@
-public class Status {
+public class Stats {
   int HP, handling, fragility;
   double haste;
   int[] delay;
@@ -6,7 +6,7 @@ public class Status {
   public final int MAX_HP = 100;
   public final int STAGES_COUNT = 6;
 
-  public Status() {
+  public Stats() {
     HP = MAX_HP;
     handling = 10;
     fragility = 10;
@@ -14,7 +14,7 @@ public class Status {
     delay = new int[STAGES_COUNT];
   }
 
-  public Status(int handling, int fragility, double haste, int initialDelay) {
+  public Stats(int handling, int fragility, double haste, int initialDelay) {
     HP = MAX_HP;
     this.handling = handling;
     this.fragility = fragility;
