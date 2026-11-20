@@ -1,0 +1,16 @@
+public class Status {
+  int HP, handling, fragility;
+  double haste;
+  int[] delay;
+
+  public final int MAX_HP = 100;
+  public final int STAGES_COUNT = 6;
+
+  public Status(){
+    HP = MAX_HP;
+    handling = 10;
+    fragility = 10;
+    haste = 1.0;
+    delay = new int[STAGES_COUNT];
+  }
+}
