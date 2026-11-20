@@ -1,4 +1,4 @@
-public class Stats {
+class Stats {
   int HP, handling, fragility;
   double haste;
   int[] delay;
