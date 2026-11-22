@@ -8,11 +8,26 @@ class Parcel {
   }
 
   void advanceStage() {
-    if (currentstage == CurrentStage.Delivered) {
-      return;
-    }
-
     // Advancement is not guarenteed, and depends on rng
+    switch (currentstage) {
+      // Depends on haste only
+      case OrderConfirmation:
+        
+        break;
+
+      // Depend on handling & haste
+      case Pickup, Sorting, OutForDelivery:
+
+        break;
+
+      // Depends on fragility & haste
+      case Transit:
+
+        break;
+    
+      default:
+        return;
+    }
   }
 }
 
