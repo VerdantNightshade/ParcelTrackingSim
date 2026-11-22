@@ -4,7 +4,7 @@ class Stats {
   int[] delay;
 
   public final int MAX_HP = 100;
-  public final int STAGES_COUNT = 6;
+  public final int STAGES_COUNT = CurrentStage.values().length;
 
   public Stats() {
     HP = MAX_HP;
