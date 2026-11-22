@@ -3,8 +3,8 @@ class Stats {
   double haste;
   int[] delay;
 
-  public final int MAX_STAT = 100;
-  public final int STAGES_COUNT = CurrentStage.values().length;
+  public static final int MAX_STAT = 100;
+  public static final int STAGES_COUNT = CurrentStage.values().length;
 
   public Stats() {
     HP = MAX_STAT;
