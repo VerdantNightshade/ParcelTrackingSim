@@ -3,19 +3,19 @@ class Stats {
   double haste;
   int[] delay;
 
-  public final int MAX_HP = 100;
+  public final int MAX_STAT = 100;
   public final int STAGES_COUNT = CurrentStage.values().length;
 
   public Stats() {
-    HP = MAX_HP;
-    handling = 10;
-    fragility = 10;
+    HP = MAX_STAT;
+    handling = (int) 0.4 * MAX_STAT;
+    fragility = (int) 0.4 * MAX_STAT;
     haste = 1.0;
     delay = new int[STAGES_COUNT];
   }
 
   public Stats(int handling, int fragility, double haste, int initialDelay) {
-    HP = MAX_HP;
+    HP = MAX_STAT;
     this.handling = handling;
     this.fragility = fragility;
     this.haste = haste;
