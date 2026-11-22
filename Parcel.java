@@ -1,4 +1,4 @@
-abstract class Parcel {
+class Parcel {
   Stats stats;
   CurrentStage currentstage;
 
