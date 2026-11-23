@@ -9,7 +9,7 @@ class Stats {
     HP = MAX_STAT;
     handling = (int) 0.4 * MAX_STAT;
     fragility = (int) 0.4 * MAX_STAT;
-    haste = (int) 0.9 * MAX_STAT;
+    haste = (int) 0.8 * MAX_STAT;
     delay = new int[STAGES_COUNT];
   }
 
