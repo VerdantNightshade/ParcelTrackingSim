@@ -29,6 +29,16 @@ class Parcel {
         return;
     }
   }
+
+  void checkDelay() {
+    double rngRoll = RNG.getNext();
+
+    // If rngRoll is greater that haste, we suffer a delay
+    if (rngRoll > stats.haste) {
+      stats.delay[currentStage.ordinal()]++;
+    }
+  }
+  
 }
 
 enum CurrentStage {
