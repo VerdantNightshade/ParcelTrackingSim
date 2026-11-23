@@ -2,11 +2,15 @@ class Parcel {
   Stats stats;
   CurrentStage currentStage;
   int delayIndex;
+  boolean isBeatUp;
+  boolean isDamaged;
 
   Parcel() {
     stats = new Stats();
     currentStage = CurrentStage.OrderConfirmation;
     delayIndex = 0;
+    isBeatUp = false;
+    isDamaged = false;
   }
 
   void advanceStage() {
@@ -73,6 +77,20 @@ class Parcel {
       default:
         break;
     }
+  }
+
+
+  void attemptBeatUp(int defenceStat) {
+    double rngRoll = RNG.getNext();
+
+    if (rngRoll > defenceStat) {
+      stats.HP -= (int) rngRoll - defenceStat;
+      isBeatUp = true;
+    }
+  }
+
+  void checkDamage() {
+    isDamaged = stats.HP <= 0;
   }
 }
 
