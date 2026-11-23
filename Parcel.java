@@ -23,13 +23,13 @@ class Parcel {
 
       // Depend on handling & haste
       case Pickup, Sorting, OutForDelivery:
-
+        attemptBeatUp(stats.handling);
         checkDelay();
         break;
 
       // Depends on fragility & haste
       case Transit:
-
+        attemptBeatUp(stats.fragility);
         checkDelay();
         break;
     
