@@ -1,10 +1,12 @@
 class Parcel {
   Stats stats;
   CurrentStage currentStage;
+  int delayIndex;
 
   Parcel() {
     stats = new Stats();
     currentStage = CurrentStage.OrderConfirmation;
+    delayIndex = 0;
   }
 
   void advanceStage() {
@@ -35,10 +37,41 @@ class Parcel {
 
     // If rngRoll is greater that haste, we suffer a delay
     if (rngRoll > stats.haste) {
-      stats.delay[currentStage.ordinal()]++;
+      stats.delay[delayIndex]++;
+    } else {
+    // If not, we proceed to the next stage
+      stats.delay[delayIndex + 1] += stats.delay[delayIndex];
+      updateCurrentStage();
+      delayIndex++;
     }
   }
   
+  void updateCurrentStage() {
+    switch (currentStage) {
+      case OrderConfirmation:
+        currentStage = CurrentStage.Pickup;
+        break;
+
+      case Pickup:
+        currentStage = CurrentStage.Sorting;
+        break;
+
+      case Sorting:
+        currentStage = CurrentStage.Transit;
+        break;
+
+      case Transit:
+        currentStage = CurrentStage.OutForDelivery;
+        break;
+
+      case OutForDelivery:
+        currentStage = CurrentStage.Delivered;
+        break;
+    
+      default:
+        break;
+    }
+  }
 }
 
 enum CurrentStage {
