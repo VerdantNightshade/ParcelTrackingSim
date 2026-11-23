@@ -1,15 +1,15 @@
 class Parcel {
   Stats stats;
-  CurrentStage currentstage;
+  CurrentStage currentStage;
 
   Parcel() {
     stats = new Stats();
-    currentstage = CurrentStage.OrderConfirmation;
+    currentStage = CurrentStage.OrderConfirmation;
   }
 
   void advanceStage() {
     // Advancement is not guarenteed, and depends on rng
-    switch (currentstage) {
+    switch (currentStage) {
       // Depends on haste only
       case OrderConfirmation:
         
