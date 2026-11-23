@@ -14,17 +14,19 @@ class Parcel {
     switch (currentStage) {
       // Depends on haste only
       case OrderConfirmation:
-        
+        checkDelay();
         break;
 
       // Depend on handling & haste
       case Pickup, Sorting, OutForDelivery:
 
+        checkDelay();
         break;
 
       // Depends on fragility & haste
       case Transit:
 
+        checkDelay();
         break;
     
       default:
