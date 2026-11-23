@@ -1,6 +1,5 @@
 class Stats {
-  int HP, handling, fragility;
-  double haste;
+  int HP, handling, fragility, haste;
   int[] delay;
 
   public static final int MAX_STAT = 100;
@@ -10,11 +9,11 @@ class Stats {
     HP = MAX_STAT;
     handling = (int) 0.4 * MAX_STAT;
     fragility = (int) 0.4 * MAX_STAT;
-    haste = 1.0;
+    haste = (int) 0.9 * MAX_STAT;
     delay = new int[STAGES_COUNT];
   }
 
-  public Stats(int handling, int fragility, double haste, int initialDelay) {
+  public Stats(int handling, int fragility, int haste, int initialDelay) {
     HP = MAX_STAT;
     this.handling = handling;
     this.fragility = fragility;
