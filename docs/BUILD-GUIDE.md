@@ -107,14 +107,14 @@ What happens behind the screen:
 ## 🚀 Start here
 
 1. Install a JDK (Java Development Kit). Run `java -version` and `javac -version` in a terminal to make sure that both commands work.
-2. Create one empty folder for the program. Open a terminal in that folder.
-3. Create each file below in that folder, in the order of the steps. Use the exact file names.
+2. Create the folder `src` in the project root. Open a terminal in `src`.
+3. Create each file below in `src`, in the order of the steps. Use the exact file names.
 4. Run the compile command from each step. Fix any error before you go on.
 
-> [!WARNING]
-> The repository root already holds files named `Parcel.java` and `Stats.java` and others. Do not mix this guide's files with them. Use the new empty folder, or move the old files away first.
+> [!NOTE]
+> The old simulator files sit in the `archive` folder. Do not copy them into `src`. They use the same class names as the new files.
 
-All files sit in one folder and have no `package` line. This is the simplest setup.
+All files sit in `src` and have no `package` line. This is the simplest setup.
 
 The code uses an OOP feature only where the project needs it. The speed classes need inheritance, so each one extends `Parcel`. `Parcel` is `abstract` with one `abstract` method, because each speed writes its own fee calculation. `Milestone` needs two constructors because an event is either new or read from a file. Fields are private because each class guards its own data. The [Finish line](#-finish-line) section shows where each one appears. The only `static` keyword besides `main` is in `ParcelFactory`.
 
@@ -463,7 +463,7 @@ Compile: `javac ParcelFactory.java`
 | `manifest.txt` | `id,speed,current hub` | `ORD1001,Express,Dispatch` |
 | `status-log.txt` | `id,hub,time stamp` | `ORD1001,Sorting Facility,Tue Nov 24 10:30:00 IST 2026` |
 
-The program reads only files that it wrote itself, so it does not check for broken lines. Do not edit the files by hand. The program rewrites `manifest.txt` on every change. It only adds lines to the end of `status-log.txt`. All files appear in the folder where you run the program.
+The program reads only files that it wrote itself, so it does not check for broken lines. Do not edit the files by hand. The program rewrites `manifest.txt` on every change. It only adds lines to the end of `status-log.txt`. The data files appear in the folder where you run the program, which is `src`.
 
 Create `ManifestStore.java`:
 
