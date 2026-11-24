@@ -53,3 +53,6 @@ jobs:
           javac -d "$RUNNER_TEMP/classes" @java-files.txt
 
           echo "All Java files compiled without errors."
+
+      - name: Run the tests
+        run: bash test/run-tests.sh "$RUNNER_TEMP/classes"
