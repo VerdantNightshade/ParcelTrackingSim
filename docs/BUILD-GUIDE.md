@@ -51,9 +51,9 @@ The spec leaves some points open. The group answered four of them. The guide fil
 
 All files sit in one folder and have no `package` line. This is the simplest setup.
 
-The code uses the basic OOP features that the spec and the lab teach. These are private fields with getters, constructors, overloading, inheritance with `extends` and `super`, an `abstract` class, overriding with `@Override`, and polymorphism. The [Finish line](#-finish-line) section shows where each one appears. The code avoids anything harder. The only `static` keyword besides `main` is in `ParcelFactory`.
+The code uses an OOP feature only where the project needs it. The speed classes need inheritance, an `abstract` parent, and overriding. `Milestone` needs two constructors because an event is either new or read from a file. Fields are private because each class guards its own data. The [Finish line](#-finish-line) section shows where each one appears. The only `static` keyword besides `main` is in `ParcelFactory`.
 
-## 🗺️ Build order
+## 🧭 Build order
 
 Each step needs only the steps before it. Each file has one job.
 
@@ -99,12 +99,6 @@ public class Hub {
     }
 
     public String getName() {
-        return name;
-    }
-
-    // Every class inherits toString from Object. We override it to print the hub name
-    @Override
-    public String toString() {
         return name;
     }
 }
@@ -195,12 +189,6 @@ public class Milestone {
     public String getTime() {
         return time;
     }
-
-    // Example result: Sorting Facility (Tue Nov 24 10:30:00 IST 2026)
-    @Override
-    public String toString() {
-        return hub.getName() + " (" + time + ")";
-    }
 }
 ```
 
@@ -281,8 +269,8 @@ public abstract class Parcel {
     public String getHistoryText() {
         String text = "Tracking history for " + trackingId + " (" + getSpeedName() + ")\n";
         for (int i = 0; i < history.size(); i++) {
-            // history.get(i) uses the toString method of Milestone
-            text = text + (i + 1) + ". " + history.get(i) + "\n";
+            Milestone m = history.get(i);
+            text = text + (i + 1) + ". " + m.getHub().getName() + " (" + m.getTime() + ")\n";
         }
         text = text + "Delivery days: " + getDeliveryDays() + "\n";
         text = text + "Cost: " + getCost() + "\n";
@@ -606,7 +594,7 @@ public class Tracker {
 
 Compile: `javac Tracker.java`
 
-## 🖥️ Step 9: Main
+## 💻 Step 9: Main
 
 `Main` is the command line. It reads the words that you type, calls `Tracker`, and prints the result. It is the only place that catches the exceptions. It supports three commands: `add`, `advance`, and `track`.
 
@@ -689,7 +677,7 @@ The spec requires these concepts. The table shows where each one appears.
 | Overloading | The two `Milestone` constructors |
 | Inheritance | `StandardParcel`, `ExpressParcel`, and `OvernightParcel` use `extends Parcel` and `super` |
 | Abstraction | The `abstract` class `Parcel` and its three `abstract` methods |
-| Overriding | `@Override` in the speed classes, and `toString` in `Hub` and `Milestone` |
+| Overriding | `@Override` in the three speed classes |
 | Polymorphism | `Tracker` holds a list of `Parcel`. A call to `getSpeedName` runs the code of the real speed class |
 | Strings | `getHistoryText` builds the CLI text |
 | Exception handling | `InvalidTrackingIdException`, thrown in `Tracker.checkId` and caught in `Main` |
