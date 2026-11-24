@@ -36,8 +36,8 @@ jobs:
 
       - name: Compile every Java file in the project
         run: |
-          # Find every .java file, at any folder depth.
-          find . -name "*.java" -not -path "./.git/*" > java-files.txt
+          # Find every .java file, at any folder depth. The archive folder holds old code, so skip it.
+          find . -name "*.java" -not -path "./.git/*" -not -path "./archive/*" > java-files.txt
 
           # Stop with a clear message if the project has no Java files.
           if [ ! -s java-files.txt ]; then
