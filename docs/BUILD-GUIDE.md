@@ -2,7 +2,7 @@
 
 > **Written for:** Group 8 members who write the Java code and are new to Java projects.
 
-This guide uses only [PROJECT-SPEC.md](PROJECT-SPEC.md) and the answers of the group. It does not use any existing code file. The code is the simplest form that core Java allows. Review each block, then create the file and paste it in.
+This guide uses only [PROJECT-SPEC.md](PROJECT-SPEC.md) and the decisions in the table below. It does not use any existing code file. The code is the simplest form that core Java allows. Review each block, then create the file and paste it in.
 
 ## 📖 Table of contents
 
@@ -24,22 +24,20 @@ This guide uses only [PROJECT-SPEC.md](PROJECT-SPEC.md) and the answers of the g
 
 ## 📌 Decisions this guide makes
 
-The spec leaves some points open. The group answered four of them. The guide fills the other gaps with the smallest choice that works.
+The spec leaves some points open. The guide fills them with the smallest choice that works.
 
-| Point | Decision | Source |
-| --- | --- | --- |
-| How speeds differ | Each speed class sets its own delivery days and writes its own `calculateTotalFee` method. | Group answer |
-| Fee formula | Total fee = base cost + base cost / delivery days. The base cost is `100`, the same for every parcel. | Group answer |
-| Valid tracking ID | The ID starts with `ORD` and has only digits after it, for example `ORD1001`. | Group answer, digit count is open |
-| File format | Comma-separated lines. The status log holds a time stamp. | Group answer |
-| Interface | Command line only, as in the sample session. | Group answer |
-| Delivery days | `5` for Standard, `2` for Express, and `1` for Overnight. The total fees are then `120.0`, `150.0`, and `200.0`. | Placeholder, the group must set the real values |
-| Unknown but well-formed ID | The program throws the same exception with the message `Parcel not found`. | Needed for the code to work |
-| Next ID | The program saves the last used order number in `last-id.txt`. The first ID is `ORD1001`. | Group request: keep the number after the program ends |
-| Extra classes | `Route`, `ParcelFactory`, and `Tracker` hold work that does not fit the clear job of `Hub`, `Parcel`, and `Main`. | Group request: one clear job for each file |
-
-> [!IMPORTANT]
-> The delivery days and the digit count of the ID are not in any source. Agree on them as a group before the final test.
+| Point | Decision |
+| --- | --- |
+| How speeds differ | Each speed class sets its own delivery days and writes its own `calculateTotalFee` method. |
+| Fee formula | Total fee = base cost + base cost / delivery days. The base cost is `100`, the same for every parcel. Only `ExpressParcel` uses this formula as it is. |
+| Fee rule for each speed | Standard: the base cost only. Express: base cost + base cost / delivery days. Overnight: base cost + base cost / delivery days + a flat surcharge of `50`. The total fees are `100.0`, `150.0`, and `250.0`. |
+| Valid tracking ID | The ID starts with `ORD` and has only digits after it, for example `ORD1001`. |
+| File format | Comma-separated lines. The status log holds a time stamp. |
+| Interface | A text menu in the terminal. The program repeats the menu until you choose Exit. |
+| Delivery days | `5` for Standard, `2` for Express, and `1` for Overnight. |
+| Unknown but well-formed ID | The program throws the same exception with the message `Parcel not found`. |
+| Next ID | The program counts the saved parcels and adds 1 to 1000. The first ID is `ORD1001`. The manifest keeps the count after the program ends. |
+| Extra classes | `Route`, `ParcelFactory`, and `Tracker` hold work that does not fit the clear job of `Hub`, `Parcel`, and `Main`. |
 
 ## 🧩 Design at a glance
 
@@ -70,13 +68,20 @@ classDiagram
 A sample session shows how the program behaves. The time stamps are examples.
 
 ```text
-> java Main add Express
+1. Add parcel
+2. Advance parcel
+3. Track parcel
+4. Exit
+Choose: 1
+Speed (Standard, Express, Overnight): Express
 Created parcel ORD1001 (Express) at Dispatch.
 
-> java Main advance ORD1001
+Choose: 2
+Tracking ID: ORD1001
 ORD1001 moved to Sorting Facility.
 
-> java Main track ORD1001
+Choose: 3
+Tracking ID: ORD1001
 Tracking history for ORD1001 (Express)
 1. Dispatch (Tue Nov 24 10:30:00 IST 2026)
 2. Sorting Facility (Tue Nov 24 10:35:12 IST 2026)
@@ -84,28 +89,32 @@ Delivery days: 2
 Base cost: 100.0
 Total fee: 150.0
 
-> java Main track ABC
+Choose: 3
+Tracking ID: ABC
 Invalid tracking ID: ABC
+
+Choose: 4
+Goodbye.
 ```
 
 What happens behind the screen:
 
-- `add` creates a parcel and saves it in `manifest.txt`. It adds the first line to `status-log.txt` and saves the new order number in `last-id.txt`.
-- `advance` moves the parcel to the next hub. It rewrites `manifest.txt` and adds a line to `status-log.txt`.
-- `track` reads the saved data and prints the history.
-- A bad ID throws `InvalidTrackingIdException`. `Main` catches it and prints a message.
+- Choice `1` creates a parcel and saves it in `manifest.txt`. It adds the first line to `status-log.txt`.
+- Choice `2` moves the parcel to the next hub. It rewrites `manifest.txt` and adds a line to `status-log.txt`.
+- Choice `3` reads the saved data and prints the history.
+- A bad ID throws `InvalidTrackingIdException`. `Main` catches it, prints a message, and shows the menu again.
 
 ## 🚀 Start here
 
 1. Install a JDK (Java Development Kit). Run `java -version` and `javac -version` in a terminal to make sure that both commands work.
-2. Create one empty folder for the program. Open a terminal in that folder.
-3. Create each file below in that folder, in the order of the steps. Use the exact file names.
+2. Create the folder `src` in the project root. Open a terminal in `src`.
+3. Create each file below in `src`, in the order of the steps. Use the exact file names.
 4. Run the compile command from each step. Fix any error before you go on.
 
-> [!WARNING]
-> The repository root already holds files named `Parcel.java` and `Stats.java` and others. Do not mix this guide's files with them. Use the new empty folder, or move the old files away first.
+> [!NOTE]
+> The old simulator files sit in the `archive` folder. Do not copy them into `src`. They use the same class names as the new files.
 
-All files sit in one folder and have no `package` line. This is the simplest setup.
+All files sit in `src` and have no `package` line. This is the simplest setup.
 
 The code uses an OOP feature only where the project needs it. The speed classes need inheritance, so each one extends `Parcel`. `Parcel` is `abstract` with one `abstract` method, because each speed writes its own fee calculation. `Milestone` needs two constructors because an event is either new or read from a file. Fields are private because each class guards its own data. The [Finish line](#-finish-line) section shows where each one appears. The only `static` keyword besides `main` is in `ParcelFactory`.
 
@@ -135,8 +144,8 @@ flowchart LR
 | 5 | `Parcel.java`, `StandardParcel.java`, `ExpressParcel.java`, `OvernightParcel.java` | Hold one shipment and its history. Each speed has its own delivery days and its own fee calculation. |
 | 6 | `ParcelFactory.java` | Builds the right parcel for a speed name. |
 | 7 | `ManifestStore.java` | Reads and writes the text files. |
-| 8 | `Tracker.java` | Runs the three commands: add, advance, and track. |
-| 9 | `Main.java` | Reads the command line and prints the result. |
+| 8 | `Tracker.java` | Runs the three actions: add, advance, and track. |
+| 9 | `Main.java` | Shows the menu, reads your choices, and prints the result. |
 
 ## 🏢 Step 1: Hub
 
@@ -274,9 +283,15 @@ Compile: `javac InvalidTrackingIdException.java`
 
 `Parcel` is an `abstract` class, so the program cannot create a plain `Parcel`. It creates one of the three speed classes. Each speed class extends `Parcel`. It passes its own speed name and delivery days to the `Parcel` constructor with `super`.
 
-The total fee is the base cost plus the base cost divided by the delivery days. A parcel with fewer delivery days pays a higher fee. The formula is `total fee = base cost + base cost / delivery days`.
+Each speed has its own fee rule.
 
-`Parcel` declares the method `calculateTotalFee` as `abstract`, which means it has no body. Each speed class must write the method itself, with the formula and its own delivery days. The `@Override` mark tells Java that the method replaces the parent declaration. This is overriding.
+| Speed | Fee rule | Total fee |
+| --- | --- | --- |
+| Standard | The base cost only. | `100.0` |
+| Express | `base cost + base cost / delivery days`. | `150.0` |
+| Overnight | `base cost + base cost / delivery days` plus a flat surcharge of `50`. | `250.0` |
+
+`Parcel` declares the method `calculateTotalFee` as `abstract`, which means it has no body. Each speed class must write the method itself, with its own rule. The `@Override` mark tells Java that the method replaces the parent declaration. This is overriding.
 
 Create `Parcel.java`:
 
@@ -288,7 +303,7 @@ public abstract class Parcel {
     private String trackingId;
     private String speedName;
     private int deliveryDays;
-    private double baseCost = 100.0; // the same for every parcel. The group sets the real value
+    private double baseCost = 100.0; // the same for every parcel
     private Hub currentHub;
     private ArrayList<Milestone> history = new ArrayList<Milestone>();
 
@@ -360,14 +375,15 @@ Create `StandardParcel.java`:
 ```java
 public class StandardParcel extends Parcel {
 
-    // super(...) calls the Parcel constructor. The 5 days are a PLACEHOLDER: the group sets the real value
+    // super(...) calls the Parcel constructor
     public StandardParcel(String trackingId) {
         super(trackingId, "Standard", 5);
     }
 
+    // Standard pays only the base cost
     @Override
     public double calculateTotalFee() {
-        return getBaseCost() + getBaseCost() / getDeliveryDays();
+        return getBaseCost();
     }
 }
 ```
@@ -377,11 +393,11 @@ Create `ExpressParcel.java`:
 ```java
 public class ExpressParcel extends Parcel {
 
-    // The 2 days are a PLACEHOLDER: the group sets the real value
     public ExpressParcel(String trackingId) {
         super(trackingId, "Express", 2);
     }
 
+    // Express pays base cost + base cost / delivery days
     @Override
     public double calculateTotalFee() {
         return getBaseCost() + getBaseCost() / getDeliveryDays();
@@ -394,14 +410,17 @@ Create `OvernightParcel.java`:
 ```java
 public class OvernightParcel extends Parcel {
 
-    // The 1 day is a PLACEHOLDER: the group sets the real value
+    // Only Overnight has a surcharge
+    private double surcharge = 50.0;
+
     public OvernightParcel(String trackingId) {
         super(trackingId, "Overnight", 1);
     }
 
+    // Overnight pays base cost + base cost / delivery days + the surcharge
     @Override
     public double calculateTotalFee() {
-        return getBaseCost() + getBaseCost() / getDeliveryDays();
+        return getBaseCost() + getBaseCost() / getDeliveryDays() + surcharge;
     }
 }
 ```
@@ -437,15 +456,14 @@ Compile: `javac ParcelFactory.java`
 
 ## 💾 Step 7: ManifestStore
 
-`ManifestStore` reads and writes three text files. The program saves to them on every command, so the data stays after the program ends. The files use these formats.
+`ManifestStore` reads and writes two text files. The program saves to them on every command, so the data stays after the program ends. The files use these formats.
 
 | File | Line format | Example |
 | --- | --- | --- |
 | `manifest.txt` | `id,speed,current hub` | `ORD1001,Express,Dispatch` |
 | `status-log.txt` | `id,hub,time stamp` | `ORD1001,Sorting Facility,Tue Nov 24 10:30:00 IST 2026` |
-| `last-id.txt` | One number: the last order number used | `1001` |
 
-The program reads only files that it wrote itself, so it does not check for broken lines. Do not edit the files by hand. The program rewrites `manifest.txt` on every change. It only adds lines to the end of `status-log.txt`. All files appear in the folder where you run the program.
+The program reads only files that it wrote itself, so it does not check for broken lines. Do not edit the files by hand. The program rewrites `manifest.txt` on every change. It only adds lines to the end of `status-log.txt`. The data files appear in the folder where you run the program, which is `src`.
 
 Create `ManifestStore.java`:
 
@@ -461,7 +479,6 @@ public class ManifestStore {
 
     private String manifestFile = "manifest.txt";
     private String logFile = "status-log.txt";
-    private String idFile = "last-id.txt";
 
     // The store needs the route to turn a hub name from a file back into a Hub
     private Route route;
@@ -472,39 +489,20 @@ public class ManifestStore {
 
     // Writes all parcels to the manifest. The old content is replaced
     public void saveManifest(ArrayList<Parcel> parcels) throws IOException {
-        PrintWriter out = new PrintWriter(new FileWriter(manifestFile));
+        PrintWriter pw = new PrintWriter(new FileWriter(manifestFile));
         for (int i = 0; i < parcels.size(); i++) {
             Parcel p = parcels.get(i);
-            out.println(p.getTrackingId() + "," + p.getSpeedName() + "," + p.getCurrentHub().getName());
+            pw.println(p.getTrackingId() + "," + p.getSpeedName() + "," + p.getCurrentHub().getName());
         }
-        out.close(); // always close a file when done
+        pw.close(); // always close a file when done
     }
 
     // Adds one line to the end of the status log
     public void appendLog(String trackingId, Milestone milestone) throws IOException {
         // The "true" means: add to the end, do not erase the old content
-        PrintWriter out = new PrintWriter(new FileWriter(logFile, true));
-        out.println(trackingId + "," + milestone.getHub().getName() + "," + milestone.getTime());
-        out.close();
-    }
-
-    // Reads the last used order number. The first run has no file, so it starts at 1000
-    public int loadLastId() throws IOException {
-        File file = new File(idFile);
-        if (!file.exists()) {
-            return 1000;
-        }
-        Scanner in = new Scanner(file);
-        int lastId = in.nextInt();
-        in.close();
-        return lastId;
-    }
-
-    // Saves the last used order number. The old content is replaced
-    public void saveLastId(int lastId) throws IOException {
-        PrintWriter out = new PrintWriter(new FileWriter(idFile));
-        out.println(lastId);
-        out.close();
+        PrintWriter pw = new PrintWriter(new FileWriter(logFile, true));
+        pw.println(trackingId + "," + milestone.getHub().getName() + "," + milestone.getTime());
+        pw.close();
     }
 
     // Reads the manifest and builds the parcel list. Each parcel also gets its history
@@ -517,15 +515,15 @@ public class ManifestStore {
             return parcels;
         }
 
-        Scanner in = new Scanner(file);
-        while (in.hasNextLine()) {
-            String[] parts = in.nextLine().split(","); // parts[0]=id, parts[1]=speed, parts[2]=hub
+        Scanner sc = new Scanner(file);
+        while (sc.hasNextLine()) {
+            String[] parts = sc.nextLine().split(","); // parts[0]=id, parts[1]=speed, parts[2]=hub
             Parcel parcel = ParcelFactory.makeParcel(parts[1], parts[0]);
             parcel.setCurrentHub(route.findByName(parts[2]));
             loadHistory(parcel);
             parcels.add(parcel);
         }
-        in.close();
+        sc.close();
         return parcels;
     }
 
@@ -535,15 +533,15 @@ public class ManifestStore {
         if (!file.exists()) {
             return;
         }
-        Scanner in = new Scanner(file);
-        while (in.hasNextLine()) {
-            String[] parts = in.nextLine().split(","); // parts[0]=id, parts[1]=hub, parts[2]=time
+        Scanner sc = new Scanner(file);
+        while (sc.hasNextLine()) {
+            String[] parts = sc.nextLine().split(","); // parts[0]=id, parts[1]=hub, parts[2]=time
             if (parts[0].equals(parcel.getTrackingId())) {
                 Hub hub = route.findByName(parts[1]);
                 parcel.addMilestone(new Milestone(hub, parts[2]));
             }
         }
-        in.close();
+        sc.close();
     }
 }
 ```
@@ -552,7 +550,7 @@ Compile: `javac ManifestStore.java`
 
 ## 🔧 Step 8: Tracker
 
-`Tracker` does the work of the three commands. It keeps the route, the store, and the parcel list as fields, so no method needs a long list of inputs. Each method returns the text to print. This class does not print anything.
+`Tracker` does the work of the three actions. It keeps the route, the store, and the parcel list as fields, so no method needs a long list of inputs. Each method returns the text to print. This class does not print anything.
 
 Create `Tracker.java`:
 
@@ -575,7 +573,7 @@ public class Tracker {
 
     // Command: add. Creates a parcel at the first hub
     public String addParcel(String speed) throws IOException {
-        int number = store.loadLastId() + 1;
+        int number = 1000 + parcels.size() + 1; // the first ID is ORD1001
         String id = "ORD" + number; // ORD1001, ORD1002, and so on
 
         Parcel parcel = ParcelFactory.makeParcel(speed, id);
@@ -589,7 +587,6 @@ public class Tracker {
 
         store.saveManifest(parcels);
         store.appendLog(id, milestone);
-        store.saveLastId(number); // keeps the number after the program ends
 
         return "Created parcel " + id + " (" + parcel.getSpeedName() + ") at " + first.getName() + ".";
     }
@@ -644,41 +641,58 @@ Compile: `javac Tracker.java`
 
 ## 💻 Step 9: Main
 
-`Main` is the command line. It reads the words that you type, calls `Tracker`, and prints the result. It is the only place that catches the exceptions. It supports three commands: `add`, `advance`, and `track`.
+`Main` shows a menu in a loop. It reads your choice with a `Scanner` on `System.in` (the keyboard), calls `Tracker`, and prints the result. A `switch` picks the action for each choice. Choice `4` leaves the loop. `Main` is the only place that catches the exceptions. A bad ID prints a message, and the menu comes back.
 
 Create `Main.java`:
 
 ```java
 import java.io.IOException;
+import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
-        // Every command needs two words, for example: add Express
-        if (args.length < 2) {
-            System.out.println("Use: java Main add <speed> | advance <ID> | track <ID>");
-            return;
-        }
-
-        String command = args[0];
-        String value = args[1]; // a speed for add, an ID for advance and track
+        // System.in is the keyboard. The Scanner reads what you type
+        Scanner sc = new Scanner(System.in);
 
         try {
             Tracker tracker = new Tracker();
 
-            if (command.equals("add")) {
-                System.out.println(tracker.addParcel(value));
-            } else if (command.equals("advance")) {
-                System.out.println(tracker.advanceParcel(value));
-            } else if (command.equals("track")) {
-                System.out.print(tracker.trackParcel(value));
-            } else {
-                System.out.println("Unknown command: " + command);
-            }
+            while (true) {
+                System.out.println();
+                System.out.println("1. Add parcel");
+                System.out.println("2. Advance parcel");
+                System.out.println("3. Track parcel");
+                System.out.println("4. Exit");
+                System.out.print("Choose: ");
+                String choice = sc.nextLine();
 
-        } catch (InvalidTrackingIdException e) {
-            // A bad ID ends here with a clear message, not a crash
-            System.out.println(e.getMessage());
+                try {
+                    switch (choice) {
+                        case "1":
+                            System.out.print("Speed (Standard, Express, Overnight): ");
+                            System.out.println(tracker.addParcel(sc.nextLine()));
+                            break;
+                        case "2":
+                            System.out.print("Tracking ID: ");
+                            System.out.println(tracker.advanceParcel(sc.nextLine()));
+                            break;
+                        case "3":
+                            System.out.print("Tracking ID: ");
+                            System.out.print(tracker.trackParcel(sc.nextLine()));
+                            break;
+                        case "4":
+                            System.out.println("Goodbye.");
+                            sc.close();
+                            return; // return ends main, so it ends the loop too
+                        default:
+                            System.out.println("Choose 1, 2, 3, or 4.");
+                    }
+                } catch (InvalidTrackingIdException e) {
+                    // A bad ID prints a message and the menu comes back
+                    System.out.println(e.getMessage());
+                }
+            }
         } catch (IOException e) {
             System.out.println("File error: " + e.getMessage());
         }
@@ -690,31 +704,30 @@ Compile everything: `javac *.java`
 
 ## ✅ Test the whole program
 
-Delete `manifest.txt`, `status-log.txt`, and `last-id.txt` before the test, so you start clean. Then run each command in order. The time stamps in your output will differ.
+Delete `manifest.txt` and `status-log.txt` before the test, so you start clean. Run `java Main`, then do each test in order. The time stamps in your output will differ.
 
-| # | Command | Expected output |
+| # | Menu choice and input | Expected output |
 | --- | --- | --- |
-| 1 | `java Main add Express` | `Created parcel ORD1001 (Express) at Dispatch.` |
-| 2 | `java Main advance ORD1001` | `ORD1001 moved to Sorting Facility.` |
-| 3 | `java Main track ORD1001` | A header line, then `1. Dispatch (time)` and `2. Sorting Facility (time)`, then the delivery days, the base cost, and the total fee. For `ORD1001` (Express) with the placeholder values, these are `2`, `100.0`, and `150.0` |
-| 4 | `java Main track ABC` | `Invalid tracking ID: ABC` |
-| 5 | `java Main track ORD9999` | `Parcel not found: ORD9999` |
-| 6 | `java Main add Fast` | `Unknown speed: Fast. Use Standard, Express, or Overnight.` |
-| 7 | `java Main advance ORD1001` three times, then once more | The last run prints `ORD1001 is already delivered.` |
+| 1 | `1`, then `Express` | `Created parcel ORD1001 (Express) at Dispatch.` |
+| 2 | `2`, then `ORD1001` | `ORD1001 moved to Sorting Facility.` |
+| 3 | `3`, then `ORD1001` | A header line, then `1. Dispatch (time)` and `2. Sorting Facility (time)`, then the delivery days, the base cost, and the total fee. For `ORD1001` (Express), these are `2`, `100.0`, and `150.0` |
+| 4 | `3`, then `ABC` | `Invalid tracking ID: ABC`, then the menu comes back |
+| 5 | `3`, then `ORD9999` | `Parcel not found: ORD9999` |
+| 6 | `1`, then `Fast` | `Unknown speed: Fast. Use Standard, Express, or Overnight.` |
+| 7 | `2`, then `ORD1001`, three times, then once more | The last try prints `ORD1001 is already delivered.` |
+| 8 | `9` | `Choose 1, 2, 3, or 4.` |
+| 9 | `4` | `Goodbye.` and the program ends |
 
-Each command is a new run of the program. If test 3 shows the history from tests 1 and 2, then the file saving works.
+After test 9, run `java Main` again and track `ORD1001`. If it shows the full history, then the file saving works.
 
-Open the three text files after the tests. Make sure that each line follows the format in Step 7. Then run `java Main add Standard` and make sure that it creates `ORD1002`.
+Open the two text files after the tests. Make sure that each line follows the format in Step 7. Then run `java Main`, add a Standard parcel, and make sure that it creates `ORD1002`.
 
 ## 🏁 Finish line
 
 - [ ] All nine steps compile with `javac *.java`.
 - [ ] All seven tests give the expected output.
-- [ ] The delivery days in the three speed classes hold the group's real values.
-- [ ] The group agreed on the base cost of `100` in `Parcel`.
-- [ ] The group agreed on the digit count of the ID.
 - [ ] Every member can explain the whole program, because the lab faculty evaluate the project.
-- [ ] The group knows what to hand in besides the code. The spec does not say, so ask the faculty.
+- [ ] You know what to hand in besides the code. The spec does not say, so ask the faculty.
 
 The spec requires these concepts. The table shows where each one appears.
 
@@ -726,8 +739,8 @@ The spec requires these concepts. The table shows where each one appears.
 | Overloading | The two `Milestone` constructors |
 | Inheritance | `StandardParcel`, `ExpressParcel`, and `OvernightParcel` use `extends Parcel` and `super` |
 | Abstraction | `Parcel` is an `abstract` class with the `abstract` method `calculateTotalFee` |
-| Overriding | `@Override` of `calculateTotalFee` in the three speed classes |
+| Overriding | `@Override` of `calculateTotalFee` in the three speed classes. Each class has a different rule |
 | Polymorphism | `Tracker` holds one list of `Parcel`. The call to `calculateTotalFee` in `getHistoryText` runs the code of the real speed class |
 | Strings | `getHistoryText` builds the CLI text |
 | Exception handling | `InvalidTrackingIdException`, thrown in `Tracker.checkId` and caught in `Main` |
-| Input and output | `ManifestStore` reads and writes `manifest.txt`, `status-log.txt`, and `last-id.txt` |
+| Input and output | `ManifestStore` reads and writes `manifest.txt` and `status-log.txt` |
