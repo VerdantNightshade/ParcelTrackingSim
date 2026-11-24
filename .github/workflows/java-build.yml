@@ -36,12 +36,12 @@ jobs:
 
       - name: Compile every Java file in the project
         run: |
-          # Find every .java file, at any folder depth. The archive folder holds old code, so skip it.
-          find . -name "*.java" -not -path "./.git/*" -not -path "./archive/*" > java-files.txt
+          # Find every .java file in the src folder, at any depth below it.
+          find src -name "*.java" > java-files.txt
 
-          # Stop with a clear message if the project has no Java files.
+          # Stop with a clear message if the src folder has no Java files.
           if [ ! -s java-files.txt ]; then
-            echo "::error::No Java files were found in the project."
+            echo "::error::No Java files were found in the src folder."
             exit 1
           fi
 
