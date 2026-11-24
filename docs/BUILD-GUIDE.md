@@ -27,17 +27,18 @@ The spec leaves some points open. The group answered four of them. The guide fil
 
 | Point | Decision | Source |
 | --- | --- | --- |
-| How speeds differ | Each speed stores its own delivery days and its own cost. | Group answer |
+| How speeds differ | Each speed class sets its own delivery days and writes its own `calculateTotalFee` method. | Group answer |
+| Fee formula | Total fee = base cost + base cost / delivery days. The base cost is `100`, the same for every parcel. | Group answer |
 | Valid tracking ID | The ID starts with `ORD` and has only digits after it, for example `ORD1001`. | Group answer, digit count is open |
 | File format | Comma-separated lines. The status log holds a time stamp. | Group answer |
 | Interface | Command line only, as in the sample session. | Group answer |
-| Delivery days and cost values | `5` days and `50.0` for Standard, `2` and `100.0` for Express, `1` and `200.0` for Overnight. | Placeholder, the group must set the real values |
+| Delivery days | `5` for Standard, `2` for Express, and `1` for Overnight. The total fees are then `120.0`, `150.0`, and `200.0`. | Placeholder, the group must set the real values |
 | Unknown but well-formed ID | The program throws the same exception with the message `Parcel not found`. | Needed for the code to work |
 | Next ID | The program saves the last used order number in `last-id.txt`. The first ID is `ORD1001`. | Group request: keep the number after the program ends |
 | Extra classes | `Route`, `ParcelFactory`, and `Tracker` hold work that does not fit the clear job of `Hub`, `Parcel`, and `Main`. | Group request: one clear job for each file |
 
 > [!IMPORTANT]
-> The placeholder values and the digit count of the ID are not in any source. Agree on them as a group before the final test.
+> The delivery days and the digit count of the ID are not in any source. Agree on them as a group before the final test.
 
 ## 🚀 Start here
 
@@ -51,7 +52,7 @@ The spec leaves some points open. The group answered four of them. The guide fil
 
 All files sit in one folder and have no `package` line. This is the simplest setup.
 
-The code uses an OOP feature only where the project needs it. The speed classes need inheritance, so each one extends `Parcel`. `Milestone` needs two constructors because an event is either new or read from a file. Fields are private because each class guards its own data. The [Finish line](#-finish-line) section shows where each one appears. The only `static` keyword besides `main` is in `ParcelFactory`.
+The code uses an OOP feature only where the project needs it. The speed classes need inheritance, so each one extends `Parcel`. `Parcel` is `abstract` with one `abstract` method, because each speed writes its own fee calculation. `Milestone` needs two constructors because an event is either new or read from a file. Fields are private because each class guards its own data. The [Finish line](#-finish-line) section shows where each one appears. The only `static` keyword besides `main` is in `ParcelFactory`.
 
 ## 🧭 Build order
 
@@ -76,7 +77,7 @@ flowchart LR
 | 2 | `Route.java` | Holds the four hubs in order and finds the next hub. |
 | 3 | `Milestone.java` | Holds one tracking event: a hub and a time. |
 | 4 | `InvalidTrackingIdException.java` | Signals a bad tracking ID. |
-| 5 | `Parcel.java`, `StandardParcel.java`, `ExpressParcel.java`, `OvernightParcel.java` | Hold one shipment and its history. Each speed has its own days and cost. |
+| 5 | `Parcel.java`, `StandardParcel.java`, `ExpressParcel.java`, `OvernightParcel.java` | Hold one shipment and its history. Each speed has its own delivery days and its own fee calculation. |
 | 6 | `ParcelFactory.java` | Builds the right parcel for a speed name. |
 | 7 | `ManifestStore.java` | Reads and writes the text files. |
 | 8 | `Tracker.java` | Runs the three commands: add, advance, and track. |
@@ -214,31 +215,37 @@ Compile: `javac InvalidTrackingIdException.java`
 
 ## 📦 Step 5: Parcel and the speed subclasses
 
-`Parcel` holds what every parcel has: an ID, a current hub, and a history. It stores the speed name, the delivery days, and the cost in fields. The getters only return those fields.
+`Parcel` holds what every parcel has: an ID, a current hub, a history, and a base cost. It also stores the speed name and the delivery days in fields. The getters only return those fields.
 
-The program creates one of the three speed classes, not a plain `Parcel`. Each speed class extends `Parcel`. It passes its own speed name, days, and cost to the `Parcel` constructor with `super`.
+`Parcel` is an `abstract` class, so the program cannot create a plain `Parcel`. It creates one of the three speed classes. Each speed class extends `Parcel`. It passes its own speed name and delivery days to the `Parcel` constructor with `super`.
+
+The total fee is the base cost plus the base cost divided by the delivery days. A parcel with fewer delivery days pays a higher fee. The formula is `total fee = base cost + base cost / delivery days`.
+
+`Parcel` declares the method `calculateTotalFee` as `abstract`, which means it has no body. Each speed class must write the method itself, with the formula and its own delivery days. The `@Override` mark tells Java that the method replaces the parent declaration. This is overriding.
 
 Create `Parcel.java`:
 
 ```java
 import java.util.ArrayList;
 
-public class Parcel {
+public abstract class Parcel {
 
     private String trackingId;
     private String speedName;
     private int deliveryDays;
-    private double cost;
+    private double baseCost = 100.0; // the same for every parcel. The group sets the real value
     private Hub currentHub;
     private ArrayList<Milestone> history = new ArrayList<Milestone>();
 
-    // The speed classes pass their own speed, days, and cost to this constructor
-    public Parcel(String trackingId, String speedName, int deliveryDays, double cost) {
+    // The speed classes pass their own speed name and delivery days to this constructor
+    public Parcel(String trackingId, String speedName, int deliveryDays) {
         this.trackingId = trackingId;
         this.speedName = speedName;
         this.deliveryDays = deliveryDays;
-        this.cost = cost;
     }
+
+    // No body here. Each speed class must write its own version of this method
+    public abstract double calculateTotalFee();
 
     public String getTrackingId() {
         return trackingId;
@@ -252,8 +259,8 @@ public class Parcel {
         return deliveryDays;
     }
 
-    public double getCost() {
-        return cost;
+    public double getBaseCost() {
+        return baseCost;
     }
 
     public Hub getCurrentHub() {
@@ -285,7 +292,9 @@ public class Parcel {
             text = text + (i + 1) + ". " + m.getHub().getName() + " (" + m.getTime() + ")\n";
         }
         text = text + "Delivery days: " + getDeliveryDays() + "\n";
-        text = text + "Cost: " + getCost() + "\n";
+        text = text + "Base cost: " + getBaseCost() + "\n";
+        // calculateTotalFee runs the code of the real speed class
+        text = text + "Total fee: " + calculateTotalFee() + "\n";
         return text;
     }
 }
@@ -296,9 +305,14 @@ Create `StandardParcel.java`:
 ```java
 public class StandardParcel extends Parcel {
 
-    // super(...) calls the Parcel constructor. The days and cost are PLACEHOLDERS: the group sets the real values
+    // super(...) calls the Parcel constructor. The 5 days are a PLACEHOLDER: the group sets the real value
     public StandardParcel(String trackingId) {
-        super(trackingId, "Standard", 5, 50.0);
+        super(trackingId, "Standard", 5);
+    }
+
+    @Override
+    public double calculateTotalFee() {
+        return getBaseCost() + getBaseCost() / getDeliveryDays();
     }
 }
 ```
@@ -308,9 +322,14 @@ Create `ExpressParcel.java`:
 ```java
 public class ExpressParcel extends Parcel {
 
-    // The days and cost are PLACEHOLDERS: the group sets the real values
+    // The 2 days are a PLACEHOLDER: the group sets the real value
     public ExpressParcel(String trackingId) {
-        super(trackingId, "Express", 2, 100.0);
+        super(trackingId, "Express", 2);
+    }
+
+    @Override
+    public double calculateTotalFee() {
+        return getBaseCost() + getBaseCost() / getDeliveryDays();
     }
 }
 ```
@@ -320,9 +339,14 @@ Create `OvernightParcel.java`:
 ```java
 public class OvernightParcel extends Parcel {
 
-    // The days and cost are PLACEHOLDERS: the group sets the real values
+    // The 1 day is a PLACEHOLDER: the group sets the real value
     public OvernightParcel(String trackingId) {
-        super(trackingId, "Overnight", 1, 200.0);
+        super(trackingId, "Overnight", 1);
+    }
+
+    @Override
+    public double calculateTotalFee() {
+        return getBaseCost() + getBaseCost() / getDeliveryDays();
     }
 }
 ```
@@ -617,7 +641,7 @@ Delete `manifest.txt`, `status-log.txt`, and `last-id.txt` before the test, so y
 | --- | --- | --- |
 | 1 | `java Main add Express` | `Created parcel ORD1001 (Express) at Dispatch.` |
 | 2 | `java Main advance ORD1001` | `ORD1001 moved to Sorting Facility.` |
-| 3 | `java Main track ORD1001` | A header line, then `1. Dispatch (time)` and `2. Sorting Facility (time)`, then the days and the cost |
+| 3 | `java Main track ORD1001` | A header line, then `1. Dispatch (time)` and `2. Sorting Facility (time)`, then the delivery days, the base cost, and the total fee. For `ORD1001` (Express) with the placeholder values, these are `2`, `100.0`, and `150.0` |
 | 4 | `java Main track ABC` | `Invalid tracking ID: ABC` |
 | 5 | `java Main track ORD9999` | `Parcel not found: ORD9999` |
 | 6 | `java Main add Fast` | `Unknown speed: Fast. Use Standard, Express, or Overnight.` |
@@ -631,7 +655,8 @@ Open the three text files after the tests. Make sure that each line follows the 
 
 - [ ] All nine steps compile with `javac *.java`.
 - [ ] All seven tests give the expected output.
-- [ ] The placeholder values in the three speed classes hold the group's real values.
+- [ ] The delivery days in the three speed classes hold the group's real values.
+- [ ] The group agreed on the base cost of `100` in `Parcel`.
 - [ ] The group agreed on the digit count of the ID.
 - [ ] Every member can explain the whole program, because the lab faculty evaluate the project.
 - [ ] The group knows what to hand in besides the code. The spec does not say, so ask the faculty.
@@ -645,7 +670,9 @@ The spec requires these concepts. The table shows where each one appears.
 | Constructors and `this` | Every class. `Milestone` has two constructors |
 | Overloading | The two `Milestone` constructors |
 | Inheritance | `StandardParcel`, `ExpressParcel`, and `OvernightParcel` use `extends Parcel` and `super` |
-| Polymorphism | `Tracker` holds one list of `Parcel`. The list holds all three speed classes |
+| Abstraction | `Parcel` is an `abstract` class with the `abstract` method `calculateTotalFee` |
+| Overriding | `@Override` of `calculateTotalFee` in the three speed classes |
+| Polymorphism | `Tracker` holds one list of `Parcel`. The call to `calculateTotalFee` in `getHistoryText` runs the code of the real speed class |
 | Strings | `getHistoryText` builds the CLI text |
 | Exception handling | `InvalidTrackingIdException`, thrown in `Tracker.checkId` and caught in `Main` |
 | Input and output | `ManifestStore` reads and writes `manifest.txt`, `status-log.txt`, and `last-id.txt` |

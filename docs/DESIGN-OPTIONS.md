@@ -2,7 +2,10 @@
 
 > **Written for:** Group 8 members who must choose how far to go with OOP concepts before the lab evaluation.
 
-This page compares the design in [BUILD-GUIDE.md](BUILD-GUIDE.md) with three possible plans. It is a draft for review. Every plan is a proposal. The spec asks for none of them, and [PROJECT-SPEC.md](PROJECT-SPEC.md) stays the only source of requirements.
+This page compares the design in [BUILD-GUIDE.md](BUILD-GUIDE.md) with other plans. It is a draft for review. The spec asks for none of the plans, and [PROJECT-SPEC.md](PROJECT-SPEC.md) stays the only source of requirements.
+
+> [!NOTE]
+> The group chose Plan 1 with this rule: the base cost is `100`, and the total fee is the base cost plus the base cost divided by the delivery days. The build guide now holds this design.
 
 ## 🧱 Current design
 
@@ -10,6 +13,10 @@ The program has 12 Java files. Each file has one job.
 
 ```mermaid
 classDiagram
+    class Parcel {
+        <<abstract>>
+        +calculateTotalFee() double
+    }
     Parcel <|-- StandardParcel
     Parcel <|-- ExpressParcel
     Parcel <|-- OvernightParcel
@@ -26,7 +33,7 @@ classDiagram
     Main ..> InvalidTrackingIdException : catches
 ```
 
-The three speed classes differ only in the values that they pass to the `Parcel` constructor. They store the speed name, the delivery days, and the cost in fields. No method differs between them.
+`Parcel` stores the ID, the speed name, the delivery days, the base cost, the current hub, and the history. Each speed class passes its speed name and delivery days to `Parcel` with `super`. Each speed class also writes its own `calculateTotalFee` method.
 
 ## 🔑 Keywords and features in use
 
@@ -35,68 +42,68 @@ The three speed classes differ only in the values that they pass to the `Parcel`
 | Private fields with getters | Every class | Yes. Each class guards its own data. |
 | Constructor and `this` | Every class | Yes. |
 | `extends` and `super` | The three speed classes | Yes. The spec asks for inheritance for the speeds. |
+| `abstract` | `Parcel` and `calculateTotalFee` | Yes. No plain parcel exists, and each speed writes its own fee calculation. |
+| `@Override` | The three speed classes | Yes. It marks the replacement of `calculateTotalFee`. |
 | Constructor overloading | The two `Milestone` constructors | Yes. An event is either new or read from a file. |
 | `static` | `main` and `ParcelFactory.makeParcel` | Yes. Both need no object. |
 | `extends Exception`, `throw`, `throws`, `try`, `catch` | `InvalidTrackingIdException`, `Tracker`, `Main` | Yes. The spec asks for exception handling. |
 | `ArrayList` and arrays | `Parcel`, `Tracker`, `Route`, `ManifestStore` | Yes. |
 | `File`, `FileWriter`, `PrintWriter`, `Scanner` | `ManifestStore` | Yes. The spec asks for file saving. |
 
-The code does not use `abstract`, `@Override`, `interface`, `enum`, or `protected`. The guide removed them because no part of the project needed them.
+The code does not use `interface`, `enum`, or `protected`, because no part of the project needs them.
 
 ## 📊 Concept coverage today
 
-| Concept | Covered | Note |
+| Concept | Covered | Where |
 | --- | --- | --- |
-| Objects, classes, and methods | Yes | |
-| Encapsulation | Yes | |
-| Inheritance | Yes, but weak | The subclasses add no behavior of their own. |
-| Polymorphism | Weak | One list holds all three speeds, but no call runs different code for each speed. |
-| Overriding | No | |
-| Abstraction | No | |
-| Overloading | Yes | |
-| Strings, exceptions, and file input and output | Yes | |
+| Objects, classes, and methods | Yes | Every class |
+| Encapsulation | Yes | Private fields with getters |
+| Inheritance | Yes | The three speed classes |
+| Abstraction | Yes | The `abstract` class `Parcel` |
+| Overriding | Yes | `calculateTotalFee` in each speed class |
+| Polymorphism | Yes | `Tracker` holds one list of `Parcel`, and `getHistoryText` calls `calculateTotalFee` on each one |
+| Overloading | Yes | The two `Milestone` constructors |
+| Strings, exceptions, and file input and output | Yes | `Parcel`, `InvalidTrackingIdException`, and `ManifestStore` |
 
-The weak point is inheritance. A reader sees three classes with the same shape and different numbers. A viva question such as "Why do the subclasses exist?" has only a short answer.
+The weak point is that the formula is the same in all three speed classes. The code repeats it three times, and only the delivery days differ. A viva question such as "Why not write the formula once in `Parcel`?" has an honest answer: the group chose to practice overriding.
 
 ## 🗺️ The plans
 
-| Plan | Change | New keywords | Concepts it shows |
-| --- | --- | --- | --- |
-| Current | None | None | See the table above |
-| Plan 1 | One method that works differently in each speed class | `abstract`, `@Override` | Overriding, abstraction, real polymorphism |
-| Plan 2 | Replace `Hub` and `Route` with one `enum` | `enum`, `values()` | None new. It removes code. |
-| Plan 3 | Keep only the classes that the spec names | None | None new. It reduces the class count. |
+| Plan | Change | New keywords | Concepts it shows | State |
+| --- | --- | --- | --- | --- |
+| Earlier design | Speed classes only pass values to `Parcel` | None | Inheritance, weakly | Replaced |
+| Plan 1 | One `abstract` method that each speed class writes | `abstract`, `@Override` | Overriding, abstraction, polymorphism | Chosen |
+| Plan 2 | Replace `Hub` and `Route` with one `enum` | `enum`, `values()` | None new. It removes code. | Open |
+| Plan 3 | Keep only the classes that the spec names | None | None new. It reduces the class count. | Open |
 
-### 🔧 Plan 1: one method that differs by speed
+### 🔧 Plan 1: one method that differs by speed (chosen)
 
-Today the speed classes pass values to a constructor. In Plan 1, `Parcel` gets one `abstract` method. Each speed class overrides it with its own rule.
-
-The rule must be real. A getter that returns a stored value does not count. The group must choose the rule, and the spec does not give one. This sketch uses made-up names and shows only the shape.
+`Parcel` declares `calculateTotalFee` as `abstract`. Each speed class overrides it. This is the shape in the build guide:
 
 ```java
 // In Parcel: no body, each speed class must write its own
-public abstract double calculateFee(int hubsPassed);
+public abstract double calculateTotalFee();
 
-// In ExpressParcel: one rule
+// In ExpressParcel: Express passes 2 delivery days to Parcel
 @Override
-public double calculateFee(int hubsPassed) {
-    return hubsPassed * EXPRESS_RATE; // EXPRESS_RATE is a number the group chooses
-}
-
-// In OvernightParcel: a different rule
-@Override
-public double calculateFee(int hubsPassed) {
-    return OVERNIGHT_FLAT_FEE; // a number the group chooses
+public double calculateTotalFee() {
+    return getBaseCost() + getBaseCost() / getDeliveryDays();
 }
 ```
 
-`Tracker` then calls `parcel.calculateFee(...)` on a `Parcel` variable. Java runs the code of the real speed class. This is polymorphism, and it is the clearest way to show it.
+With the placeholder delivery days, the totals are as follows.
+
+| Speed | Delivery days | Base cost | Base cost / days | Total fee |
+| --- | --- | --- | --- | --- |
+| Standard | 5 | 100.0 | 20.0 | 120.0 |
+| Express | 2 | 100.0 | 50.0 | 150.0 |
+| Overnight | 1 | 100.0 | 100.0 | 200.0 |
 
 | Gain | Cost |
 | --- | --- |
-| Inheritance has a clear reason. | The group must write a fee rule that the spec does not give. |
-| Overriding, abstraction, and polymorphism all appear in code that matters. | The `cost` field and `getCost` can become redundant. The group must decide which one stays. |
-| An easy answer for "Why do the subclasses exist?" | The program needs one new output line, so the result is visible. |
+| Inheritance has a clear reason. | The formula repeats in three classes. |
+| Overriding, abstraction, and polymorphism all appear in code that matters. | The delivery days are placeholders until the group sets them. |
+| The `track` output shows the result. | The spec does not name a fee. This is an addition of the group. |
 
 ### 🔧 Plan 2: an enum for the hubs
 
@@ -120,18 +127,17 @@ The spec names `Parcel`, `Hub`, `Milestone`, and the three speeds. The design sk
 
 ## ✅ Recommendation
 
-When the group can state the fee rule in one sentence, choose Plan 1 as the only change. Plan 1 is the one plan that adds an OOP concept. It builds on work that the spec already asks for, which is inheritance for the speeds.
+Keep Plan 1 as it is. It adds the OOP concepts through work that the spec already asks for, which is inheritance for the speeds.
 
 Plans 2 and 3 do not add a concept. They trade clear files for fewer files. They conflict with the aim of simple code that each file explains in one sentence.
 
-If the group cannot agree on a rule, keep the current design. It meets every item in the spec. Do not invent a rule only to use a keyword.
+To remove the repeated formula later, the group has two choices. It can give each speed a different rule, so each override holds real logic. It can also move the formula into `Parcel` and drop the `abstract` method. The second choice removes overriding, so the first one fits the aim better. The spec does not ask for either.
 
 ## ❓ Questions to settle first
 
-- Does the group want Plan 1?
-- If yes, what is the rule for each speed, and which number does it use?
-- Does the `cost` field stay, or does `calculateFee` replace it?
-- Does the lab faculty expect overriding and abstraction by name? The spec only says inheritance.
+- Is the base cost of `100` final?
+- What are the real delivery days for Standard, Express, and Overnight?
+- Does the lab faculty expect any OOP concept that the table above does not cover?
 
 ## 🎓 Other steps for the evaluation
 
