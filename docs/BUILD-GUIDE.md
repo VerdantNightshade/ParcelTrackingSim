@@ -2,11 +2,12 @@
 
 > **Written for:** Group 8 members who write the Java code and are new to Java projects.
 
-This guide uses only [PROJECT-SPEC.md](PROJECT-SPEC.md), [BUILD-OVERVIEW.md](BUILD-OVERVIEW.md), and [DESIGN-SKETCH.md](DESIGN-SKETCH.md). It does not use any existing code file. The code is the simplest form that core Java allows. Review each block, then create the file and paste it in.
+This guide uses only [PROJECT-SPEC.md](PROJECT-SPEC.md) and the answers of the group. It does not use any existing code file. The code is the simplest form that core Java allows. Review each block, then create the file and paste it in.
 
 ## 📖 Table of contents
 
 - [Decisions this guide makes](#-decisions-this-guide-makes)
+- [Design at a glance](#-design-at-a-glance)
 - [Start here](#-start-here)
 - [Build order](#-build-order)
 - [Step 1: Hub](#-step-1-hub)
@@ -39,6 +40,60 @@ The spec leaves some points open. The group answered four of them. The guide fil
 
 > [!IMPORTANT]
 > The delivery days and the digit count of the ID are not in any source. Agree on them as a group before the final test.
+
+## 🧩 Design at a glance
+
+The program tracks a parcel through four hubs: Dispatch, Sorting Facility, Out-for-Delivery, and Delivered. It has 12 Java files, and each file has one job.
+
+```mermaid
+classDiagram
+    class Parcel {
+        <<abstract>>
+        +calculateTotalFee() double
+    }
+    Parcel <|-- StandardParcel
+    Parcel <|-- ExpressParcel
+    Parcel <|-- OvernightParcel
+    Parcel --> Hub : is at
+    Parcel --> Milestone : records
+    Route --> Hub : holds four
+    ManifestStore --> Route
+    ManifestStore ..> ParcelFactory
+    Tracker --> ManifestStore
+    Tracker --> Route
+    Tracker ..> ParcelFactory
+    Tracker ..> InvalidTrackingIdException : throws
+    Main --> Tracker
+    Main ..> InvalidTrackingIdException : catches
+```
+
+A sample session shows how the program behaves. The time stamps are examples.
+
+```text
+> java Main add Express
+Created parcel ORD1001 (Express) at Dispatch.
+
+> java Main advance ORD1001
+ORD1001 moved to Sorting Facility.
+
+> java Main track ORD1001
+Tracking history for ORD1001 (Express)
+1. Dispatch (Tue Nov 24 10:30:00 IST 2026)
+2. Sorting Facility (Tue Nov 24 10:35:12 IST 2026)
+Delivery days: 2
+Base cost: 100.0
+Total fee: 150.0
+
+> java Main track ABC
+Invalid tracking ID: ABC
+```
+
+What happens behind the screen:
+
+- `add` creates a parcel and saves it in `manifest.txt`. It adds the first line to `status-log.txt` and saves the new order number in `last-id.txt`.
+- `advance` moves the parcel to the next hub. It rewrites `manifest.txt` and adds a line to `status-log.txt`.
+- `track` reads the saved data and prints the history.
+- A bad ID throws `InvalidTrackingIdException`. `Main` catches it and prints a message.
 
 ## 🚀 Start here
 
