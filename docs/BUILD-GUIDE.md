@@ -27,7 +27,7 @@ The spec leaves some points open. The group answered four of them. The guide fil
 
 | Point | Decision | Source |
 | --- | --- | --- |
-| How speeds differ | Each speed returns its own delivery days and its own cost. | Group answer |
+| How speeds differ | Each speed stores its own delivery days and its own cost. | Group answer |
 | Valid tracking ID | The ID starts with `ORD` and has only digits after it, for example `ORD1001`. | Group answer, digit count is open |
 | File format | Comma-separated lines. The status log holds a time stamp. | Group answer |
 | Interface | Command line only, as in the sample session. | Group answer |
@@ -51,7 +51,7 @@ The spec leaves some points open. The group answered four of them. The guide fil
 
 All files sit in one folder and have no `package` line. This is the simplest setup.
 
-The code uses an OOP feature only where the project needs it. The speed classes need inheritance, an `abstract` parent, and overriding. `Milestone` needs two constructors because an event is either new or read from a file. Fields are private because each class guards its own data. The [Finish line](#-finish-line) section shows where each one appears. The only `static` keyword besides `main` is in `ParcelFactory`.
+The code uses an OOP feature only where the project needs it. The speed classes need inheritance, so each one extends `Parcel`. `Milestone` needs two constructors because an event is either new or read from a file. Fields are private because each class guards its own data. The [Finish line](#-finish-line) section shows where each one appears. The only `static` keyword besides `main` is in `ParcelFactory`.
 
 ## 🧭 Build order
 
@@ -214,34 +214,46 @@ Compile: `javac InvalidTrackingIdException.java`
 
 ## 📦 Step 5: Parcel and the speed subclasses
 
-`Parcel` holds what every parcel has: an ID, a current hub, and a history. It is an `abstract` class, so you cannot create a plain `Parcel`. You create one of the three speed classes.
+`Parcel` holds what every parcel has: an ID, a current hub, and a history. It stores the speed name, the delivery days, and the cost in fields. The getters only return those fields.
 
-The three methods marked `abstract` have no body. Each speed class must write its own version. This is overriding, and the `@Override` mark tells Java that the method replaces a parent method.
+The program creates one of the three speed classes, not a plain `Parcel`. Each speed class extends `Parcel`. It passes its own speed name, days, and cost to the `Parcel` constructor with `super`.
 
 Create `Parcel.java`:
 
 ```java
 import java.util.ArrayList;
 
-public abstract class Parcel {
+public class Parcel {
 
     private String trackingId;
+    private String speedName;
+    private int deliveryDays;
+    private double cost;
     private Hub currentHub;
     private ArrayList<Milestone> history = new ArrayList<Milestone>();
 
-    public Parcel(String trackingId) {
+    // The speed classes pass their own speed, days, and cost to this constructor
+    public Parcel(String trackingId, String speedName, int deliveryDays, double cost) {
         this.trackingId = trackingId;
+        this.speedName = speedName;
+        this.deliveryDays = deliveryDays;
+        this.cost = cost;
     }
-
-    // No body here. Each speed class must write these three methods
-    public abstract String getSpeedName();
-
-    public abstract int getDeliveryDays();
-
-    public abstract double getCost();
 
     public String getTrackingId() {
         return trackingId;
+    }
+
+    public String getSpeedName() {
+        return speedName;
+    }
+
+    public int getDeliveryDays() {
+        return deliveryDays;
+    }
+
+    public double getCost() {
+        return cost;
     }
 
     public Hub getCurrentHub() {
@@ -284,24 +296,9 @@ Create `StandardParcel.java`:
 ```java
 public class StandardParcel extends Parcel {
 
-    // super(...) passes the ID to the Parcel constructor
+    // super(...) calls the Parcel constructor. The days and cost are PLACEHOLDERS: the group sets the real values
     public StandardParcel(String trackingId) {
-        super(trackingId);
-    }
-
-    @Override
-    public String getSpeedName() {
-        return "Standard";
-    }
-
-    @Override
-    public int getDeliveryDays() {
-        return 5; // PLACEHOLDER: the group sets the real value
-    }
-
-    @Override
-    public double getCost() {
-        return 50.0; // PLACEHOLDER: the group sets the real value
+        super(trackingId, "Standard", 5, 50.0);
     }
 }
 ```
@@ -311,23 +308,9 @@ Create `ExpressParcel.java`:
 ```java
 public class ExpressParcel extends Parcel {
 
+    // The days and cost are PLACEHOLDERS: the group sets the real values
     public ExpressParcel(String trackingId) {
-        super(trackingId);
-    }
-
-    @Override
-    public String getSpeedName() {
-        return "Express";
-    }
-
-    @Override
-    public int getDeliveryDays() {
-        return 2; // PLACEHOLDER: the group sets the real value
-    }
-
-    @Override
-    public double getCost() {
-        return 100.0; // PLACEHOLDER: the group sets the real value
+        super(trackingId, "Express", 2, 100.0);
     }
 }
 ```
@@ -337,23 +320,9 @@ Create `OvernightParcel.java`:
 ```java
 public class OvernightParcel extends Parcel {
 
+    // The days and cost are PLACEHOLDERS: the group sets the real values
     public OvernightParcel(String trackingId) {
-        super(trackingId);
-    }
-
-    @Override
-    public String getSpeedName() {
-        return "Overnight";
-    }
-
-    @Override
-    public int getDeliveryDays() {
-        return 1; // PLACEHOLDER: the group sets the real value
-    }
-
-    @Override
-    public double getCost() {
-        return 200.0; // PLACEHOLDER: the group sets the real value
+        super(trackingId, "Overnight", 1, 200.0);
     }
 }
 ```
@@ -676,9 +645,7 @@ The spec requires these concepts. The table shows where each one appears.
 | Constructors and `this` | Every class. `Milestone` has two constructors |
 | Overloading | The two `Milestone` constructors |
 | Inheritance | `StandardParcel`, `ExpressParcel`, and `OvernightParcel` use `extends Parcel` and `super` |
-| Abstraction | The `abstract` class `Parcel` and its three `abstract` methods |
-| Overriding | `@Override` in the three speed classes |
-| Polymorphism | `Tracker` holds a list of `Parcel`. A call to `getSpeedName` runs the code of the real speed class |
+| Polymorphism | `Tracker` holds one list of `Parcel`. The list holds all three speed classes |
 | Strings | `getHistoryText` builds the CLI text |
 | Exception handling | `InvalidTrackingIdException`, thrown in `Tracker.checkId` and caught in `Main` |
 | Input and output | `ManifestStore` reads and writes `manifest.txt`, `status-log.txt`, and `last-id.txt` |
