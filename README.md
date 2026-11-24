@@ -39,3 +39,4 @@ flowchart LR
 | [docs/BUILD-OVERVIEW.md](docs/BUILD-OVERVIEW.md) | What to build, open questions, and the proposed work split |
 | [docs/DESIGN-SKETCH.md](docs/DESIGN-SKETCH.md) | The classes and a sample session |
 | [docs/BUILD-GUIDE.md](docs/BUILD-GUIDE.md) | Step-by-step code for every class, and the final test |
+| [docs/DESIGN-OPTIONS.md](docs/DESIGN-OPTIONS.md) | The current design, the OOP keywords in use, and three plans to improve it |
