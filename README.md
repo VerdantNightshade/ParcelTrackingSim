@@ -38,3 +38,4 @@ flowchart LR
 | [docs/PROJECT-SPEC.md](docs/PROJECT-SPEC.md) | The assignment: objective, problem statement, key concepts, and constraints |
 | [docs/BUILD-OVERVIEW.md](docs/BUILD-OVERVIEW.md) | What to build, open questions, and the proposed work split |
 | [docs/DESIGN-SKETCH.md](docs/DESIGN-SKETCH.md) | The classes and a sample session |
+| [docs/BUILD-GUIDE.md](docs/BUILD-GUIDE.md) | Step-by-step code for every class, and the final test |
