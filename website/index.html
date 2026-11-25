@@ -7,7 +7,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 <style>
@@ -23,8 +23,7 @@
     --deep-muted: #a9c9c5;
     --coral: #e8553d;
     --coral-text: #ffffff;
-    --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
-    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --sans: "DM Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -64,24 +63,11 @@
     padding: clamp(40px, 10vw, 88px) 0 clamp(36px, 8vw, 64px);
   }
 
-  .hero small {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 14px;
-    color: var(--deep-muted);
-    font-size: 0.85rem;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-  }
-
   h1 {
     margin: 0;
-    font-family: var(--serif);
-    font-size: clamp(2.1rem, 7vw, 3.6rem);
+    font-size: clamp(2rem, 6.5vw, 3.2rem);
     font-weight: 700;
-    line-height: 1.08;
-    letter-spacing: -0.01em;
+    line-height: 1.15;
   }
 
   .hero p {
@@ -121,9 +107,8 @@
     align-items: center;
     gap: 12px;
     margin: 0 0 18px;
-    font-family: var(--serif);
-    font-size: clamp(1.4rem, 3.5vw, 1.8rem);
-    font-weight: 600;
+    font-size: clamp(1.3rem, 3.5vw, 1.6rem);
+    font-weight: 700;
   }
 
   h2 i { color: var(--coral); font-size: 0.9em; line-height: 1; }
@@ -219,12 +204,29 @@
   /* ---------- Group ---------- */
   .group { width: 100%; border-collapse: collapse; }
   .group th, .group td { padding: 12px 0; vertical-align: middle; text-align: left; }
-  .group th { color: var(--muted); font-size: 0.8rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
-  .group td:last-child, .group th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+  .group th { color: var(--muted); font-weight: 500; }
+  .group td:last-child, .group th:last-child { text-align: right; }
 
   /* ---------- Build info ---------- */
-  .hero .meta { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 10px; font-size: 0.85rem; }
-  .hero .meta span { display: inline-flex; align-items: center; gap: 6px; }
+  .hero .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+
+  /* ---------- Badges ---------- */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--rule);
+    background: var(--tint);
+    color: var(--deep);
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+  .hero .badge { background: rgba(255, 255, 255, 0.10); border-color: rgba(255, 255, 255, 0.22); color: var(--deep-text); }
+  @media (prefers-color-scheme: dark) { .badge { color: #7fd0c8; } .hero .badge { color: var(--deep-text); } }
 
   main { padding-bottom: clamp(40px, 8vw, 72px); }
 </style>
@@ -234,12 +236,11 @@
 
   <header class="hero">
     <div class="wrap">
-      <small><i class="bi bi-mortarboard"></i> Object-Oriented Programming Lab (PCC-CS593) &middot; Group 8</small>
       <h1>Courier and Parcel Tracking Simulator</h1>
-      <p>Kalyani Government Engineering College</p>
+      <p>Object-Oriented Programming Lab (PCC-CS593), Group 8<br>Kalyani Government Engineering College</p>
       <p class="meta">
-        <span><i class="bi bi-git"></i> Build 0000000</span>
-        <span><i class="bi bi-calendar3"></i> Published 0000-00-00</span>
+        <span class="badge"><i class="bi bi-git"></i> Build 0000000</span>
+        <span class="badge"><i class="bi bi-calendar3"></i> Published 0000-00-00</span>
       </p>
       <div class="actions">
         <a class="btn primary" href="report.pdf"><i class="bi bi-file-earmark-pdf"></i> Download the report (PDF)</a>
@@ -252,7 +253,7 @@
 
     <section>
       <h2><i class="bi bi-box-seam"></i> About</h2>
-      <p>A parcel tracking simulator written in Java, with game-like elements. The program tracks parcels through four hubs and logs each step.</p>
+      <p>A parcel tracking simulator written in Java. The program tracks parcels through four hubs and logs each step.</p>
       <ol class="steps">
         <li><i class="bi bi-box-arrow-up"></i>Dispatch</li>
         <li><i class="bi bi-signpost-split"></i>Sorting Facility</li>
@@ -276,11 +277,11 @@
       <h2><i class="bi bi-people"></i> Group 8</h2>
       <table class="group">
         <tr><th>Name</th><th>Roll number</th></tr>
+        <tr><td>Aayudh Chattarjee</td><td>10200124032</td></tr>
+        <tr><td>Agniva Hait</td><td>10200124041</td></tr>
         <tr><td>Arunava Roy</td><td>10200124034</td></tr>
         <tr><td>Dwaipayan Datta</td><td>10200124065</td></tr>
-        <tr><td>Aayudh Chattarjee</td><td>10200124032</td></tr>
         <tr><td>Nirjhar Debnath</td><td>10200124021</td></tr>
-        <tr><td>Agniva Hait</td><td>10200124041</td></tr>
       </table>
     </section>
 
