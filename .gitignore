@@ -24,8 +24,11 @@
 hs_err_pid*
 
 # Data files that the program writes when you run it
-src/manifest.txt
-src/status-log.txt
+manifest.txt
+status-log.txt
+
+# Build output of the test script
+test-build/
 
 # LaTeX build output
 report/build/

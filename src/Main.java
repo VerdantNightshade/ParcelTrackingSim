@@ -4,10 +4,9 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
-        // System.in is the keyboard. The Scanner reads what you type
-        Scanner sc = new Scanner(System.in);
-
-        try {
+        // System.in is the keyboard. The Scanner reads what you type.
+        // try (...) closes the Scanner by itself when the block ends, also after an error
+        try (Scanner sc = new Scanner(System.in)) {
             Tracker tracker = new Tracker();
 
             while (true) {
@@ -35,7 +34,6 @@ public class Main {
                             break;
                         case "4":
                             System.out.println("Goodbye.");
-                            sc.close();
                             return; // return ends main, so it ends the loop too
                         default:
                             System.out.println("Choose 1, 2, 3, or 4.");

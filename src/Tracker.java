@@ -16,7 +16,7 @@ public class Tracker {
 
     // Command: add. Creates a parcel at the first hub
     public String addParcel(String speed) throws IOException {
-        int number = 1000 + parcels.size() + 1; // the first ID is ORD1001
+        int number = nextNumber(); // the first ID is ORD1001
         String id = "ORD" + number; // ORD1001, ORD1002, and so on
 
         Parcel parcel = ParcelFactory.makeParcel(speed, id);
@@ -55,6 +55,18 @@ public class Tracker {
         return parcel.getHistoryText();
     }
 
+    // One more than the highest number in use, so an ID is never used twice
+    private int nextNumber() {
+        int highest = 1000;
+        for (int i = 0; i < parcels.size(); i++) {
+            int number = Integer.parseInt(parcels.get(i).getTrackingId().substring(3));
+            if (number > highest) {
+                highest = number;
+            }
+        }
+        return highest + 1;
+    }
+
     // Checks the ID format, then looks for the parcel in the list
     private Parcel findParcel(String id) throws InvalidTrackingIdException {
         checkId(id);
@@ -68,7 +80,7 @@ public class Tracker {
 
     // Rule: the ID starts with ORD and has at least one digit after it, and only digits
     private void checkId(String id) throws InvalidTrackingIdException {
-        if (!id.startsWith("ORD") || id.length() == 3) {
+        if (id == null || !id.startsWith("ORD") || id.length() == 3) {
             throw new InvalidTrackingIdException("Invalid tracking ID: " + id);
         }
         for (int i = 3; i < id.length(); i++) {

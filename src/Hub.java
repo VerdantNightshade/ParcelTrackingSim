@@ -11,7 +11,18 @@ public class Hub {
 		return name;
 	}
 
-	public boolean equals(Hub candidate) {
-		return name.equals(candidate.getName());
+	// Two hubs are equal when their names are equal
+	@Override
+	public boolean equals(Object candidate) {
+		if (!(candidate instanceof Hub)) {
+			return false; // this also covers null
+		}
+		return name.equals(((Hub) candidate).getName());
+	}
+
+	// Equal hubs must have the same hash code
+	@Override
+	public int hashCode() {
+		return name.hashCode();
 	}
 }
