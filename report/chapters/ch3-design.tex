@@ -170,9 +170,9 @@ through the four hubs. Part (b) shows the steps of the command
 \node[logic,text width=2.8cm] (C) at (0,-3.6) {Next hub exists?};
 \node[model,text width=2.8cm] (D) at (0,-5.4) {Parcel moves to next hub};
 \node[store,text width=2.8cm] (E) at (0,-7.2) {Save manifest and add log line};
-\node[ui,text width=2.8cm]    (F) at (0,-9)   {Print ``moved to ...''};
+\node[ui,text width=2.8cm]    (F) at (0,-9)   {Print \enquote{moved to ...}};
 \node[err,text width=2cm] (X) at (3.6,-1.8) {Print error message};
-\node[err,text width=2cm] (Y) at (3.6,-3.6) {Print ``already delivered''};
+\node[err,text width=2cm] (Y) at (3.6,-3.6) {Print \enquote{already delivered}};
 \draw[assoc] (A) -- (B);
 \draw[assoc] (B) -- (C) node[elabel,left=2pt]{yes};
 \draw[assoc] (C) -- (D) node[elabel,left=2pt]{yes};
