@@ -1,6 +1,6 @@
-# 📦 ParcelTrackingSim
+# 📦 Courier and Parcel Tracking Simulator
 
-A parcel tracking simulator written in Java, with game-like elements. It is the Courier and Parcel Tracking Simulator project of Group 8 for the Object-Oriented Programming Lab (PCC-CS593) at Kalyani Government Engineering College.
+A parcel tracking simulator written in Java, with game-like elements. It is the project of Group 8 for the Object-Oriented Programming Lab (PCC-CS593) at Kalyani Government Engineering College.
 
 ## 🎯 What it does
 

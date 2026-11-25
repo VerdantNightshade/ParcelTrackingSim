@@ -1,0 +1,79 @@
+name: Publish Website
+
+# Run on every push to main that changes the website or the report.
+# You can also start it by hand from the Actions tab.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "website/**"
+      - "report/**"
+      - ".github/workflows/publish-website.yml"
+  workflow_dispatch:
+
+# The folder with the LaTeX files and the main file in it.
+env:
+  REPORT_FOLDER: report
+  ROOT_FILE: main.tex
+
+# GitHub Pages needs these rights to publish the site.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running publish finish, and keep only the newest waiting run.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Compile the LaTeX files
+        uses: xu-cheng/latex-action@v3
+        with:
+          working_directory: ${{ env.REPORT_FOLDER }}
+          root_file: ${{ env.ROOT_FILE }}
+
+      - name: Assemble the site
+        run: |
+          mkdir _site
+          cp website/index.html _site/index.html
+          cp "$REPORT_FOLDER/${ROOT_FILE%.tex}.pdf" _site/report.pdf
+
+      - name: Fill in the placeholders
+        run: |
+          sed -i \
+            -e "s|{{REPO_URL}}|https://github.com/${GITHUB_REPOSITORY}|g" \
+            -e "s|{{COMMIT_SHA}}|${GITHUB_SHA::7}|g" \
+            -e "s|{{BUILD_DATE}}|$(date -u +%Y-%m-%d)|g" \
+            _site/index.html
+          # Stop the build if a placeholder is still in the page.
+          if grep -q '{{' _site/index.html; then
+            echo "Unfilled placeholder in index.html:"
+            grep -n '{{' _site/index.html
+            exit 1
+          fi
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Publish to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
