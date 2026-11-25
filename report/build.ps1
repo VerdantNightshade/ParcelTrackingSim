@@ -1,4 +1,5 @@
-# Compile report/main.tex to report/build/main.pdf.
+# Compile report/main.tex to report/build/main.pdf and copies it to
+# report/build/<name>_<date>_<commit>.pdf.
 # Uses latexmk when it works. If latexmk fails (for example, Perl is missing),
 # it runs pdflatex three times instead, which also resolves the references.
 Set-Location $PSScriptRoot
@@ -12,4 +13,8 @@ if ($LASTEXITCODE -ne 0) {
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     }
 }
-Write-Host "PDF written to $PSScriptRoot\build\main.pdf"
+$sha = (git rev-parse --short=7 HEAD 2>$null)
+if (-not $sha) { $sha = "nogit" }
+$name = "Courier-and-Parcel-Tracking-Simulator_Project-Report_Group-8_KGEC_2026-2027_$(Get-Date -Format yyyy-MM-dd)_$sha.pdf"
+Copy-Item build\main.pdf "build\$name" -Force
+Write-Host "PDF written to $PSScriptRoot\build\$name"

@@ -14,6 +14,8 @@ on:
 env:
   REPORT_FOLDER: report
   ROOT_FILE: main.tex
+  # The PDF name ends with the build date and the short commit hash.
+  REPORT_BASE: Courier-and-Parcel-Tracking-Simulator_Project-Report_Group-8_KGEC_2026-2027
 
 # The workflow only reads the code, so it needs no write access.
 permissions:
@@ -41,10 +43,12 @@ jobs:
       - name: Name the PDF
         run: |
           # The compiled PDF has the same name as the main file.
-          cp "$REPORT_FOLDER/${ROOT_FILE%.tex}.pdf" "$REPORT_FOLDER/report.pdf"
+          REPORT_PDF="${REPORT_BASE}_$(date -u +%Y-%m-%d)_${GITHUB_SHA::7}.pdf"
+          cp "$REPORT_FOLDER/${ROOT_FILE%.tex}.pdf" "$REPORT_FOLDER/$REPORT_PDF"
+          echo "REPORT_PDF=$REPORT_PDF" >> "$GITHUB_ENV"
 
       - name: Upload the PDF as a run artifact
         uses: actions/upload-artifact@v4
         with:
-          name: report
-          path: ${{ env.REPORT_FOLDER }}/report.pdf
+          name: ${{ env.REPORT_PDF }}
+          path: ${{ env.REPORT_FOLDER }}/${{ env.REPORT_PDF }}

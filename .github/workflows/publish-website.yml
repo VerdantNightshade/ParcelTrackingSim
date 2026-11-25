@@ -15,6 +15,8 @@ on:
 env:
   REPORT_FOLDER: report
   ROOT_FILE: main.tex
+  # The PDF name ends with the build date and the short commit hash.
+  REPORT_BASE: Courier-and-Parcel-Tracking-Simulator_Project-Report_Group-8_KGEC_2026-2027
 
 # GitHub Pages needs these rights to publish the site.
 permissions:
@@ -43,9 +45,12 @@ jobs:
 
       - name: Assemble the site
         run: |
+          # Use one date value for the file name and the page.
+          echo "BUILD_DATE=$(date -u +%Y-%m-%d)" >> "$GITHUB_ENV"
+          BUILD_DATE=$(date -u +%Y-%m-%d)
           mkdir _site
           cp website/index.html _site/index.html
-          cp "$REPORT_FOLDER/${ROOT_FILE%.tex}.pdf" _site/report.pdf
+          cp "$REPORT_FOLDER/${ROOT_FILE%.tex}.pdf" "_site/${REPORT_BASE}_${BUILD_DATE}_${GITHUB_SHA::7}.pdf"
 
       - name: Fill in the preview values
         run: |
@@ -54,7 +59,7 @@ jobs:
           sed -i \
             -e "s|https://github.com/dev/preview|https://github.com/${GITHUB_REPOSITORY}|g" \
             -e "s|0000000|${GITHUB_SHA::7}|g" \
-            -e "s|0000-00-00|$(date -u +%Y-%m-%d)|g" \
+            -e "s|0000-00-00|${BUILD_DATE}|g" \
             _site/index.html
           # Stop the build if a dummy value is still in the page.
           if grep -nE 'dev/preview|0000000|0000-00-00' _site/index.html; then
