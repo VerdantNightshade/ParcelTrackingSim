@@ -2,7 +2,7 @@
 \begin{center}
 {\bfseries\fontsize{14}{17}\selectfont ACKNOWLEDGEMENT}
 \end{center}
-\vspace{0.5cm}
+\vspace{0.3cm}
 
 We would like to express our sincere gratitude to all those who have supported
 and guided us throughout the duration of our B.Tech project. We are especially
@@ -18,12 +18,19 @@ friends for their moral support and motivation.
 Finally, we express our deepest love and gratitude to our families for their
 unwavering support and blessings.
 
-\vspace{1.5cm}
+% Two columns of students. Each cell: blank space to sign, a line, then the details.
+\newcommand{\ackcell}[2]{%
+  \parbox[t]{\linewidth}{\singlespacing
+  \rule{0pt}{2cm}\rule{0.85\linewidth}{0.4pt}\\[2pt]
+  Signature\\
+  Name: #1\\
+  Roll: #2}}
+
+\vspace{0.2cm}
 \noindent
-\begin{tabular}{@{}l@{\hspace{0.8cm}}l@{\hspace{0.8cm}}l@{}}
-\rule{3.6cm}{0.4pt} & \rule{3.6cm}{0.4pt} & \rule{3.6cm}{0.4pt}\\
-Signature & Signature & Signature\\[6pt]
-Arunava Roy & Dwaipayan Datta & Aayudh Chattarjee\\
-10200124034 & 10200124065 & 10200124032
-\end{tabular}
+\begin{tabularx}{\textwidth}{@{}XX@{}}
+\ackcell{Aayudh Chattarjee}{10200124032} & \ackcell{Agniva Hait}{10200124041}\\[0.4cm]
+\ackcell{Arunava Roy}{10200124034} & \ackcell{Dwaipayan Datta}{10200124065}\\[0.4cm]
+\ackcell{Nirjhar Debnath}{10200124021} &
+\end{tabularx}
 \clearpage

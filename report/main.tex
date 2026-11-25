@@ -8,6 +8,7 @@
 \usepackage[table]{xcolor}
 \usepackage{graphicx}
 \usepackage{pdfpages}
+\usepackage{tabularx}
 \usepackage{caption}
 \usepackage{titlesec}
 \usepackage{tocloft}
@@ -16,22 +17,35 @@
 \onehalfspacing
 
 % ---------- Headings: main 14 bold, sub 12 bold, no tab ----------
-\titleformat{\chapter}[hang]{\bfseries\fontsize{14}{17}\selectfont\MakeUppercase}{CHAPTER \thechapter:}{0.5em}{}
-\titlespacing*{\chapter}{0pt}{0pt}{18pt}
+\titleformat{\chapter}[hang]{\raggedright\bfseries\fontsize{14}{17}\selectfont\MakeUppercase}{CHAPTER \thechapter:}{0.5em}{}
+\titlespacing*{\chapter}{0pt}{-30pt}{18pt}
 \titleformat{\section}{\bfseries\fontsize{12}{14}\selectfont}{\thesection}{0.5em}{}
 \titleformat{\subsection}{\bfseries\fontsize{12}{14}\selectfont}{\thesubsection}{0.5em}{}
 \titlespacing*{\section}{0pt}{12pt}{6pt}
 \titlespacing*{\subsection}{0pt}{10pt}{4pt}
 
-% ---------- Table of contents ----------
-\renewcommand{\contentsname}{CONTENT}
+% Centered 14 pt bold title for the front-matter pages.
+\newcommand{\fronttitle}[1]{\begin{center}{\bfseries\fontsize{14}{17}\selectfont #1}\end{center}\vspace{6pt}}
+
+% ---------- Table of contents and lists ----------
+% The titles of Content, List of Figures and List of Tables come from
+% \fronttitle. The generated titles are left empty.
+\renewcommand{\contentsname}{}
+\renewcommand{\listfigurename}{}
+\renewcommand{\listtablename}{}
+\setlength{\cftbeforetoctitleskip}{0pt}
+\setlength{\cftbeforeloftitleskip}{0pt}
+\setlength{\cftbeforelottitleskip}{0pt}
+\setlength{\cftaftertoctitleskip}{0pt}
+\setlength{\cftafterloftitleskip}{0pt}
+\setlength{\cftafterlottitleskip}{0pt}
 \renewcommand{\cftchappresnum}{CHAPTER }
 \renewcommand{\cftchapaftersnum}{:}
 \setlength{\cftchapnumwidth}{6.5em}
 \renewcommand{\cftchapfont}{\bfseries}
 \renewcommand{\cftchappagefont}{\bfseries}
-\renewcommand{\listfigurename}{LIST OF FIGURES}
-\renewcommand{\listtablename}{LIST OF TABLES}
+\setlength{\cftbeforechapskip}{3pt}
+\renewcommand{\bibname}{REFERENCES}
 
 % ---------- Captions: figure below, table above ----------
 \renewcommand{\figurename}{Fig.}
@@ -39,25 +53,34 @@
 \captionsetup[figure]{labelsep=space,name={Fig.}}
 \captionsetup[table]{labelsep=space}
 
-\setlength{\parindent}{1.5em}
+% Paragraphs: no indent, 8 pt gap between them.
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{8pt plus 1pt}
 
 \begin{document}
 
 % ---------- Front matter (roman page numbers) ----------
-\pagenumbering{roman}
+% The cover has no page number. Roman numbering starts on the page after it.
+\pagenumbering{gobble}
 \input{frontmatter/cover}
+\pagenumbering{roman}
 \input{frontmatter/certificate}
 \input{frontmatter/acknowledgement}
 \input{frontmatter/declaration}
 \input{frontmatter/abstract}
 
 \clearpage
+\fronttitle{CONTENT}
 \tableofcontents
 
 \clearpage
+\fronttitle{LIST OF FIGURES}
 \listoffigures
+
 \clearpage
+\fronttitle{LIST OF TABLES}
 \listoftables
+
 \clearpage
 \input{frontmatter/abbreviations}
 
