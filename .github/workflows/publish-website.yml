@@ -15,7 +15,7 @@ on:
 env:
   REPORT_FOLDER: report
   ROOT_FILE: main.tex
-  # The PDF name ends with the build date and the short commit hash.
+  # The PDF and DOCX names end with the build date and the short commit hash.
   REPORT_BASE: Courier-and-Parcel-Tracking-Simulator_Project-Report_Group-8_KGEC_2026-2027
 
 # GitHub Pages needs these rights to publish the site.
@@ -43,6 +43,9 @@ jobs:
           working_directory: ${{ env.REPORT_FOLDER }}
           root_file: ${{ env.ROOT_FILE }}
 
+      - name: Install pandoc
+        run: sudo apt-get update && sudo apt-get install -y pandoc
+
       - name: Assemble the site
         run: |
           # Use one date value for the file name and the page.
@@ -50,7 +53,10 @@ jobs:
           BUILD_DATE=$(date -u +%Y-%m-%d)
           mkdir _site
           cp website/index.html _site/index.html
-          cp "$REPORT_FOLDER/${ROOT_FILE%.tex}.pdf" "_site/${REPORT_BASE}_${BUILD_DATE}_${GITHUB_SHA::7}.pdf"
+          REPORT_NAME="${REPORT_BASE}_${BUILD_DATE}_${GITHUB_SHA::7}"
+          cp "$REPORT_FOLDER/${ROOT_FILE%.tex}.pdf" "_site/$REPORT_NAME.pdf"
+          # The DOCX holds the text only. Diagrams are not included.
+          (cd "$REPORT_FOLDER" && pandoc "$ROOT_FILE" -f latex --reference-doc=reference.docx -o "../_site/$REPORT_NAME.docx")
 
       - name: Fill in the preview values
         run: |

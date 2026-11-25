@@ -1,4 +1,4 @@
-name: Build Report PDF
+name: Build Report PDF and DOCX
 
 # Run on every push to main that changes a file in the report folder.
 # You can also start it by hand from the Actions tab.
@@ -14,7 +14,7 @@ on:
 env:
   REPORT_FOLDER: report
   ROOT_FILE: main.tex
-  # The PDF name ends with the build date and the short commit hash.
+  # The PDF and DOCX names end with the build date and the short commit hash.
   REPORT_BASE: Courier-and-Parcel-Tracking-Simulator_Project-Report_Group-8_KGEC_2026-2027
 
 # The workflow only reads the code, so it needs no write access.
@@ -40,15 +40,23 @@ jobs:
           working_directory: ${{ env.REPORT_FOLDER }}
           root_file: ${{ env.ROOT_FILE }}
 
-      - name: Name the PDF
+      - name: Install pandoc
+        run: sudo apt-get update && sudo apt-get install -y pandoc
+
+      - name: Name the PDF and make the DOCX
         run: |
           # The compiled PDF has the same name as the main file.
-          REPORT_PDF="${REPORT_BASE}_$(date -u +%Y-%m-%d)_${GITHUB_SHA::7}.pdf"
-          cp "$REPORT_FOLDER/${ROOT_FILE%.tex}.pdf" "$REPORT_FOLDER/$REPORT_PDF"
-          echo "REPORT_PDF=$REPORT_PDF" >> "$GITHUB_ENV"
+          # The DOCX has the same name as the PDF, with a different ending.
+          REPORT_NAME="${REPORT_BASE}_$(date -u +%Y-%m-%d)_${GITHUB_SHA::7}"
+          cp "$REPORT_FOLDER/${ROOT_FILE%.tex}.pdf" "$REPORT_FOLDER/$REPORT_NAME.pdf"
+          # The DOCX holds the text only. Diagrams are not included.
+          (cd "$REPORT_FOLDER" && pandoc "$ROOT_FILE" -f latex --reference-doc=reference.docx -o "$REPORT_NAME.docx")
+          echo "REPORT_NAME=$REPORT_NAME" >> "$GITHUB_ENV"
 
-      - name: Upload the PDF as a run artifact
+      - name: Upload the PDF and DOCX as a run artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.REPORT_PDF }}
-          path: ${{ env.REPORT_FOLDER }}/${{ env.REPORT_PDF }}
+          name: ${{ env.REPORT_NAME }}
+          path: |
+            ${{ env.REPORT_FOLDER }}/${{ env.REPORT_NAME }}.pdf
+            ${{ env.REPORT_FOLDER }}/${{ env.REPORT_NAME }}.docx
