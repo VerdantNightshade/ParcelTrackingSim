@@ -1,0 +1,50 @@
+name: Build Report PDF
+
+# Run on every push to main that changes a file in the report folder.
+# You can also start it by hand from the Actions tab.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "report/**"
+      - ".github/workflows/release-report.yml"
+  workflow_dispatch:
+
+# The folder with the LaTeX files and the main file in it.
+env:
+  REPORT_FOLDER: report
+  ROOT_FILE: main.tex
+
+# The workflow only reads the code, so it needs no write access.
+permissions:
+  contents: read
+
+# When a new push arrives, stop the older run.
+concurrency:
+  group: release-report
+  cancel-in-progress: true
+
+jobs:
+  build-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Compile the LaTeX files
+        uses: xu-cheng/latex-action@v3
+        with:
+          working_directory: ${{ env.REPORT_FOLDER }}
+          root_file: ${{ env.ROOT_FILE }}
+
+      - name: Name the PDF
+        run: |
+          # The compiled PDF has the same name as the main file.
+          cp "$REPORT_FOLDER/${ROOT_FILE%.tex}.pdf" "$REPORT_FOLDER/report.pdf"
+
+      - name: Upload the PDF as a run artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: report
+          path: ${{ env.REPORT_FOLDER }}/report.pdf
