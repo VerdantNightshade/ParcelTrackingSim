@@ -1,4 +1,4 @@
-name: Java Build Check
+name: Java Build and Test
 
 # Run on every push to main and on every pull request that targets main.
 on:
@@ -16,9 +16,11 @@ concurrency:
   group: java-build-${{ github.ref }}
   cancel-in-progress: true
 
+# The steps below are the same steps that "bash test/run-tests.sh" runs on your
+# own computer. Run that command locally before you push.
 jobs:
-  compile:
-    name: Compile all Java files
+  test:
+    name: Build and test
     runs-on: ubuntu-latest
 
     steps:
@@ -34,25 +36,11 @@ jobs:
       - name: Show the Java version
         run: javac -version
 
-      - name: Compile every Java file in the project
-        run: |
-          # Find every .java file in the src folder, at any depth below it.
-          find src -name "*.java" > java-files.txt
+      - name: Step 1 - Build test
+        run: bash test/build.sh
 
-          # Stop with a clear message if the src folder has no Java files.
-          if [ ! -s java-files.txt ]; then
-            echo "::error::No Java files were found in the src folder."
-            exit 1
-          fi
+      - name: Step 2 - Compile the tests
+        run: bash test/compile-tests.sh
 
-          echo "Compiling these files:"
-          cat java-files.txt
-
-          # Put the compiled classes in a temporary folder, so the repository stays clean.
-          mkdir -p "$RUNNER_TEMP/classes"
-          javac -d "$RUNNER_TEMP/classes" @java-files.txt
-
-          echo "All Java files compiled without errors."
-
-      - name: Run the tests
-        run: bash test/run-tests.sh "$RUNNER_TEMP/classes"
+      - name: Step 3 - Run the unit tests
+        run: bash test/unit-tests.sh
