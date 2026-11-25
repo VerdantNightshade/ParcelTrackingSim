@@ -1,10 +1,11 @@
 \thispagestyle{plain}
 \begin{center}
-{\bfseries\fontsize{14}{17}\selectfont Declaration by the student(s)}
+{\bfseries\fontsize{14}{17}\selectfont Declaration by the students}
 \end{center}
 \vspace{0.5cm}
 
-\noindent We, Arunava Roy, Dwaipayan Datta, Aayudh Chattarjee, students of
+We, Aayudh Chattarjee, Agniva Hait, Arunava Roy, Dwaipayan Datta,
+Nirjhar Debnath, students of
 B.Tech, CSE 3\textsuperscript{rd} year 5\textsuperscript{th} Semester have
 submitted this mini report in partial fulfillment of the requirements of
 Group-Based Innovative Assignments on Object-Oriented Programming Lab
@@ -15,21 +16,20 @@ assurance guidelines.
 We further declare that we have not committed plagiarism in any form or
 violated copyright while preparing this report.
 
-\vspace{1cm}
-\noindent
-Name of the student: Arunava Roy\\
-University Roll Number: 10200124034\\
-Full signature with date:
+% Two columns of students. Each cell: blank space to sign, a line,
+% then the details (same pattern as the acknowledgement page).
+\newcommand{\declcell}[2]{%
+  \parbox[t]{\linewidth}{\singlespacing
+  \rule{0pt}{2cm}\rule{0.85\linewidth}{0.4pt}\\[2pt]
+  Signature with date\\
+  Name: #1\\
+  Roll: #2}}
 
-\vspace{0.8cm}
+\vspace{0.2cm}
 \noindent
-Name of the student: Dwaipayan Datta\\
-University Roll Number: 10200124065\\
-Full signature with date:
-
-\vspace{0.8cm}
-\noindent
-Name of the student: Aayudh Chattarjee\\
-University Roll Number: 10200124032\\
-Full signature with date:
+\begin{tabularx}{\textwidth}{@{}XX@{}}
+\declcell{Aayudh Chattarjee}{10200124032} & \declcell{Agniva Hait}{10200124041}\\[0.4cm]
+\declcell{Arunava Roy}{10200124034} & \declcell{Dwaipayan Datta}{10200124065}\\[0.4cm]
+\declcell{Nirjhar Debnath}{10200124021} &
+\end{tabularx}
 \clearpage
