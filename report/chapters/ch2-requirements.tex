@@ -1,10 +1,48 @@
 \chapter{System Requirements \& Problem Specification}
 
 \section{Problem Definition}
-State the problem in a few clear sentences.
+A logistics system must track the state of each parcel and its transit
+history. The system must handle different shipment speeds, reject wrong
+tracking IDs, and keep its records in files.
 
 \section{Objectives and Scope}
-List the objectives and say what the project covers and what it does not cover.
+The objectives of the project are:
+\begin{itemize}
+\item Model a parcel, a hub, and a milestone as classes. Each class holds its
+own data in private fields and has one clear job.
+\item Use inheritance for the three shipment speeds. \texttt{Parcel} is the
+base class. \texttt{StandardParcel}, \texttt{ExpressParcel}, and
+\texttt{OvernightParcel} extend it, and each one has its own delivery days and
+its own fee rule.
+\item Track each parcel through the four hubs in a fixed order, and record a
+milestone with the time at each hub.
+\item Handle an invalid tracking ID with a custom exception, so the program
+prints a message and does not crash.
+\item Save the parcels in a manifest file and each milestone in a status log
+file, and load both files when the program starts.
+\item Show the tracking history, the delivery days, and the fee of a parcel in
+the terminal.
+\item Test each class of the program with unit tests, and test that the
+program builds.
+\end{itemize}
+
+\textbf{Scope.} The project covers:
+\begin{itemize}
+\item One route with four hubs: Dispatch, Sorting Facility, Out-for-Delivery,
+and Delivered.
+\item Three shipment speeds: Standard, Express, and Overnight.
+\item Three commands in a command-line menu: add a parcel, advance a parcel,
+and track a parcel.
+\item Storage in two text files.
+\end{itemize}
+
+The project does not cover:
+\begin{itemize}
+\item A database. The assignment allows only text files or memory.
+\item A graphical or web interface.
+\item A network, many users at the same time, or real courier data.
+\item Other routes, or a way to move a parcel back to an earlier hub.
+\end{itemize}
 
 \section{User Requirements \& Functional Specifications}
 Table~\ref{tab:requirements} lists the functional requirements.
@@ -18,12 +56,22 @@ Table~\ref{tab:requirements} lists the functional requirements.
 \hline
 \textbf{ID} & \textbf{Requirement}\\
 \hline
-FR1 & First requirement\\
+FR1 & The user can add a parcel with the speed Standard, Express, or Overnight.\\
 \hline
-FR2 & Second requirement\\
+FR2 & Each new parcel gets a tracking ID that starts with \texttt{ORD} (\texttt{ORD1001}, \texttt{ORD1002}, and so on) and starts at Dispatch.\\
+\hline
+FR3 & The user can move a parcel to the next hub. A parcel cannot move past Delivered.\\
+\hline
+FR4 & The user can see the tracking history, the delivery days, and the fee of a parcel.\\
+\hline
+FR5 & The program rejects a tracking ID that is wrongly formed or not found.\\
+\hline
+FR6 & The program saves the parcels and each milestone in text files and loads them at start.\\
 \hline
 \end{tabularx}
 \end{table}
 
 \section{Non-Functional Requirements}
-Describe performance, usability, and robustness requirements.
+The program must use core Java only and must not use a database. It must not
+crash on wrong input: it prints a message and shows the menu again. The code
+must be simple enough for a student to read.

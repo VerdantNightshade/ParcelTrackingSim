@@ -1,7 +1,50 @@
 \chapter{Conclusions}
 
 \section{Summary of Work Done}
-Summarize the work completed.
+The group built a parcel tracking simulator in core Java. It tracks parcels
+through four hubs, calculates the fee for three speeds, rejects invalid
+tracking IDs, and saves its data in text files. Unit tests check these
+features.
 
 \section{Key Learnings and Outcomes}
-List what the group learned and the outcomes achieved.
+The group learned the following from the project.
+
+\textbf{Classes and encapsulation.} We learned to split a problem into small
+classes: \texttt{Hub}, \texttt{Milestone}, \texttt{Route}, \texttt{Parcel}, and
+others. Each class keeps its fields private and has one job. This made the code
+easier to read and to change.
+
+\textbf{Inheritance and abstract classes.} We learned to put what is common in
+a base class and what is different in subclasses. The abstract method
+\texttt{calculateTotalFee()} forces each speed class to give its own fee rule.
+
+\textbf{Polymorphism.} We learned that one call can run different code. The
+call to \texttt{calculateTotalFee()} in \texttt{Parcel} runs the code of the
+real speed class, so \texttt{Parcel} does not need to know which speed it has.
+
+\textbf{Factory and separation of work.} We learned to keep the choice of
+class in one place, \texttt{ParcelFactory}. We also learned to keep the menu
+(\texttt{Main}), the commands (\texttt{Tracker}), and the files
+(\texttt{ManifestStore}) in separate classes.
+
+\textbf{Exception handling.} We learned to write a custom exception, to throw
+it where the error is found, and to catch it where the program can recover.
+A wrong tracking ID now prints a message and the menu comes back.
+
+\textbf{File input and output.} We learned to write a file again from the
+start (the manifest) and to add to the end of a file (the status log). We also
+learned to rebuild the objects from the files when the program starts, and to
+close each file after use with try-with-resources, also when an error happens.
+
+\textbf{Testing.} We learned to write unit tests that test one class at a
+time, to check the expected value against the actual value, and to run a build
+test before the unit tests. We learned to run all tests with one call.
+
+The outcomes of the project are:
+\begin{itemize}
+\item A working command-line program of about 400 lines of core Java.
+\item Three shipment speeds with their own delivery days and fees.
+\item Data that stays after the program closes.
+\item A build test and 50 unit tests with 109 checks that all pass.
+\item This report.
+\end{itemize}

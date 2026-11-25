@@ -1,8 +1,14 @@
 \chapter{Future Scope of Work}
 
 \section{Potential Enhancements}
-Describe possible enhancements, such as moving from flat files to a relational
-database or a web interface.
+The program can move from text files to a relational database. It can also
+get a graphical or web interface, more hubs, and more shipment speeds.
+
+Another enhancement is scope-based access to actions. A scope is a list of
+actions that a user may do. For example, a customer scope can only track a
+parcel, and a staff scope can also add a parcel and advance it. The program
+checks the scope before it runs a command.
 
 \section{Scalability Improvements}
-Describe how the system could handle more parcels and users.
+The program reads the status log once for each parcel. A database with an
+index on the tracking ID can replace this and handle many more parcels.

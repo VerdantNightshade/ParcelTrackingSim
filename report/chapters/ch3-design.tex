@@ -1,23 +1,203 @@
 \chapter{System Design \& Architecture}
 
 \section{Object-Oriented Design Principles Applied}
-Explain how encapsulation, abstraction, inheritance, and polymorphism appear in
-the design.
+The program applies four principles \cite{ref1}. Each one has an example from
+the code.
+
+\textbf{Encapsulation.} The fields of a class are private. Other classes use
+getter methods, so only the class itself can change its data.
+
+\begin{lstlisting}[style=java]
+public class Hub {
+    // Private field: only this class can change it
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+}
+\end{lstlisting}
+
+\textbf{Abstraction.} \texttt{Parcel} is an abstract class. It declares the
+method \texttt{calculateTotalFee()} without a body. Each speed class must
+write its own version.
+
+\begin{lstlisting}[style=java]
+public abstract class Parcel {
+    // No body here. Each speed class must write its own version
+    public abstract double calculateTotalFee();
+}
+\end{lstlisting}
+
+\textbf{Inheritance.} \texttt{StandardParcel}, \texttt{ExpressParcel}, and
+\texttt{OvernightParcel} extend \texttt{Parcel}. They reuse its fields and
+methods and add only what is different.
+
+\begin{lstlisting}[style=java]
+public class ExpressParcel extends Parcel {
+    public ExpressParcel(String trackingId) {
+        super(trackingId, "Express", 2); // calls the Parcel constructor
+    }
+}
+\end{lstlisting}
+
+\textbf{Polymorphism.} The method \texttt{getHistoryText()} in \texttt{Parcel}
+calls \texttt{calculateTotalFee()}. At run time, Java runs the version of the
+real speed class. \texttt{ParcelFactory} returns a \texttt{Parcel} that is
+really a \texttt{StandardParcel}, an \texttt{ExpressParcel}, or an
+\texttt{OvernightParcel}.
+
+\begin{lstlisting}[style=java]
+// in Parcel: runs the code of the real speed class
+text = text + "Total fee: " + calculateTotalFee() + "\n";
+
+// in ParcelFactory: the return type is Parcel
+if (speed.equals("Express")) {
+    return new ExpressParcel(id);
+}
+\end{lstlisting}
 
 \section{Class Diagram \& Architecture}
-Figure~\ref{fig:classdiagram} shows the packages, the inheritance hierarchy, and
-the relationships between classes.
+Figure~\ref{fig:classdiagram} shows the classes and how they relate. A solid
+arrow means that a class holds another class. A dashed arrow means that a class
+uses another class. A hollow triangle means inheritance. \texttt{Main} reads
+the menu choice and calls \texttt{Tracker}. \texttt{Tracker} uses
+\texttt{Route}, \texttt{ManifestStore}, and \texttt{ParcelFactory}. The colors
+mean: blue for the user interface, orange for logic, yellow for file storage,
+green for the model, purple for the parcel classes, and red for the exception.
 
 \begin{figure}[h]
 \centering
-\fbox{\rule{0pt}{5cm}\rule{0.9\textwidth}{0pt}}
+\begin{tikzpicture}[x=1cm,y=1cm]
+% user interface and logic
+\node[ui]    (Main)    at (0,0)     {\textbf{Main}\\menu and input};
+\node[err]   (Exc)     at (5.3,0)   {\textbf{InvalidTracking-\\IdException}};
+\node[logic] (Tracker) at (0,-2.4)  {\textbf{Tracker}\\add, advance, track};
+% helpers
+\node[logic] (Factory) at (-5.3,-4.8) {\textbf{ParcelFactory}\\makes parcels};
+\node[store] (Store)   at (0,-4.8)    {\textbf{ManifestStore}\\reads and writes files};
+\node[model] (Route)   at (5.3,-4.8)  {\textbf{Route}\\four hubs in order};
+% model
+\node[model] (Mile)    at (-5.3,-7.2) {\textbf{Milestone}\\hub and time};
+\node[abs]   (Parcel)  at (0,-7.2)    {\textbf{Parcel}\\\textit{abstract}};
+\node[model] (Hub)     at (5.3,-7.2)  {\textbf{Hub}\\name};
+% speeds
+\node[abs] (Std) at (-5.3,-9.8) {\textbf{StandardParcel}};
+\node[abs] (Exp) at (0,-9.8)    {\textbf{ExpressParcel}};
+\node[abs] (Ovr) at (5.3,-9.8)  {\textbf{OvernightParcel}};
+
+\draw[assoc] (Main) -- (Tracker);
+\draw[dep]   (Main) -- (Exc)     node[elabel]{catches};
+\draw[dep]   (Tracker) -- (Exc)  node[elabel]{throws};
+\draw[assoc] (Tracker) -- (Store);
+\draw[assoc] (Tracker) -- (Route);
+\draw[dep]   (Tracker) -- (Factory);
+\draw[assoc] (Store) -- (Route);
+\draw[dep]   (Store) -- (Factory);
+\draw[assoc] (Route) -- (Hub)    node[elabel]{holds four};
+\draw[assoc] (Parcel) -- (Hub)   node[elabel]{is at};
+\draw[assoc] (Parcel) -- (Mile)  node[elabel]{records};
+\draw[inherit] (Std) -- (Parcel);
+\draw[inherit] (Exp) -- (Parcel);
+\draw[inherit] (Ovr) -- (Parcel);
+\end{tikzpicture}
 \caption{Class diagram of the system.}
 \label{fig:classdiagram}
 \end{figure}
 
+Table~\ref{tab:classes} lists the role of each class.
+
+\begin{table}[h]
+\centering
+\caption{Classes and their roles.}
+\label{tab:classes}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{0.3\textwidth}|X|}
+\hline
+\textbf{Class} & \textbf{Role}\\
+\hline
+Main & Shows the menu and reads the input.\\
+\hline
+Tracker & Runs the commands add, advance, and track. Checks the tracking ID.\\
+\hline
+Parcel & Abstract base class. Holds the ID, speed, current hub, and history.\\
+\hline
+StandardParcel, ExpressParcel, OvernightParcel & Set the speed, the delivery days, and the fee rule.\\
+\hline
+Hub & One transit hub with a name.\\
+\hline
+Route & Holds the four hubs in order and finds the next hub.\\
+\hline
+Milestone & One event: a hub and a time.\\
+\hline
+ParcelFactory & Makes the right parcel object from a speed name.\\
+\hline
+ManifestStore & Reads and writes the text files.\\
+\hline
+InvalidTrackingIdException & Custom exception for a wrong tracking ID.\\
+\hline
+\end{tabularx}
+\end{table}
+
 \section{Use Case / Workflow Diagram}
-Describe the workflow and show the diagram.
+Figure~\ref{fig:workflow} has two parts. Part (a) shows the route of a parcel
+through the four hubs. Part (b) shows the steps of the command
+\textit{Advance parcel}.
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}[t]{0.42\textwidth}
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[ui]    (H1) at (0,0)    {\textbf{1. Dispatch}};
+\node[logic] (H2) at (0,-1.9) {\textbf{2. Sorting Facility}};
+\node[store] (H3) at (0,-3.8) {\textbf{3. Out-for-Delivery}};
+\node[model] (H4) at (0,-5.7) {\textbf{4. Delivered}};
+\draw[assoc] (H1) -- (H2) node[elabel,right=2pt]{advance};
+\draw[assoc] (H2) -- (H3) node[elabel,right=2pt]{advance};
+\draw[assoc] (H3) -- (H4) node[elabel,right=2pt]{advance};
+\node[font=\scriptsize,text width=2cm,align=left] at (-2.5,0) {new parcel starts here};
+\node[font=\scriptsize,text width=2cm,align=left] at (-2.5,-5.7) {last hub, no next hub};
+\end{tikzpicture}
+\caption{Route of a parcel.}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.55\textwidth}
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[ui,text width=2.8cm]    (A) at (0,0)    {User enters 2 and the tracking ID};
+\node[logic,text width=2.8cm] (B) at (0,-1.8) {ID valid and parcel found?};
+\node[logic,text width=2.8cm] (C) at (0,-3.6) {Next hub exists?};
+\node[model,text width=2.8cm] (D) at (0,-5.4) {Parcel moves to next hub};
+\node[store,text width=2.8cm] (E) at (0,-7.2) {Save manifest and add log line};
+\node[ui,text width=2.8cm]    (F) at (0,-9)   {Print ``moved to ...''};
+\node[err,text width=2cm] (X) at (3.6,-1.8) {Print error message};
+\node[err,text width=2cm] (Y) at (3.6,-3.6) {Print ``already delivered''};
+\draw[assoc] (A) -- (B);
+\draw[assoc] (B) -- (C) node[elabel,left=2pt]{yes};
+\draw[assoc] (C) -- (D) node[elabel,left=2pt]{yes};
+\draw[assoc] (D) -- (E);
+\draw[assoc] (E) -- (F);
+\draw[dep] (B) -- (X) node[elabel]{no};
+\draw[dep] (C) -- (Y) node[elabel]{no};
+\end{tikzpicture}
+\caption{Steps of the advance command.}
+\end{subfigure}
+\caption{Route and workflow.}
+\label{fig:workflow}
+\end{figure}
 
 \section{Data Structures \& File Storage Design}
-Describe the data structures and the structure of the text files used for
-persistence.
+The program keeps the parcels in an \texttt{ArrayList} \cite{ref1}, the hubs in an array,
+and the history of each parcel in an \texttt{ArrayList} of milestones.
+
+The program uses two text files, one line per record, with commas between the
+values:
+
+\begin{itemize}
+\item \texttt{manifest.txt}: tracking ID, speed, current hub.
+\item \texttt{status-log.txt}: tracking ID, hub, time.
+\end{itemize}
+
+The program replaces the manifest on every save. It only adds lines to the end
+of the status log.

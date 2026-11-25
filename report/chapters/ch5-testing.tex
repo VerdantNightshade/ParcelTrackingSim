@@ -1,10 +1,181 @@
 \chapter{Testing \& Results}
 
 \section{Testing Strategy \& Test Cases}
-Describe the unit tests of classes and methods and list the test cases.
+The tests use core Java only. There is no test library. One call runs all of
+them:
+
+\begin{lstlisting}[style=console]
+bash test/run-tests.sh
+\end{lstlisting}
+
+The script runs three scripts in order and stops at the first step that fails.
+The GitHub workflow runs the same three scripts, one step each, on every push
+and pull request to the main branch:
+\begin{enumerate}
+\item \textbf{Build test} (\texttt{build.sh}). The script compiles all files in \texttt{src} and
+checks that all 12 class files exist.
+\item \textbf{Test compile} (\texttt{compile-tests.sh}). The script compiles the test classes in
+\texttt{test} against the compiled program.
+\item \textbf{Unit tests} (\texttt{unit-tests.sh}). The script runs each test class. Each test class
+tests one class of the program.
+\end{enumerate}
+
+A test class has several test methods. A test method calls the method under
+test and compares the result with the expected value. A failed check prints the
+expected value and the actual value, and the other checks still run. The helper
+class \texttt{TestSupport} holds these checks. Tests that use files run in a
+fresh temporary folder, so they do not change the real data files.
+
+Table~\ref{tab:tests} lists the test classes. In total there are 50 tests with
+109 checks, and all of them pass.
+
+\begin{table}[h]
+\centering
+\caption{Unit test classes.}
+\label{tab:tests}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|p{0.3\textwidth}|X|c|}
+\hline
+\textbf{Test class} & \textbf{What it tests} & \textbf{Tests}\\
+\hline
+HubTest & \texttt{getName}, and \texttt{equals} for the same and for a different name, for \texttt{null}, and for the hash code. & 5\\
+\hline
+RouteTest & The first hub, the next hub of each hub, no next hub after Delivered, and finding a hub by name. & 5\\
+\hline
+MilestoneTest & Both constructors, \texttt{getHub}, and \texttt{getTime}. & 2\\
+\hline
+ParcelTest & Speed name, delivery days, base cost, and fee of the three speed classes. Moving to a hub, adding a milestone, and the history text. & 8\\
+\hline
+ParcelFactoryTest & The right class for each speed name, and \texttt{null} for an unknown or \texttt{null} speed. & 6\\
+\hline
+InvalidTrackingIdExceptionTest & The message, and that the exception is a checked exception. & 2\\
+\hline
+TrackerTest & Adding a parcel, the ID count, advancing to the last hub, tracking, a new ID after a gap in the manifest, and each kind of invalid, \texttt{null}, or unknown tracking ID. & 14\\
+\hline
+ManifestStoreTest & Loading with no file, saving and loading the manifest, adding to the log, and loading the history. & 5\\
+\hline
+PersistenceTest & A new \texttt{Tracker} loads the parcels, the hubs, the history, and the ID count that a first \texttt{Tracker} saved. & 2\\
+\hline
+MainMenuTest & One typed session of the menu: add, advance, track, wrong ID, wrong choice, and exit. & 1\\
+\hline
+\end{tabularx}
+\end{table}
 
 \section{Sample Input/Output Screens}
-Show sample CLI interactions and explain them.
+The examples below come from real runs of the program. The menu appears before every command. It
+is shown once here, and the user input is the text after each prompt.
+
+\textbf{Example 1: add parcels and move a parcel.}
+Fig.~\ref{fig:run1} adds one parcel of each speed and moves \texttt{ORD1001} two hubs.
+
+\begin{figure}[h]
+\begin{lstlisting}[style=console]
+1. Add parcel
+2. Advance parcel
+3. Track parcel
+4. Exit
+Choose: 1
+Speed (Standard, Express, Overnight): Express
+Created parcel ORD1001 (Express) at Dispatch.
+Choose: 1
+Speed (Standard, Express, Overnight): Standard
+Created parcel ORD1002 (Standard) at Dispatch.
+Choose: 1
+Speed (Standard, Express, Overnight): Overnight
+Created parcel ORD1003 (Overnight) at Dispatch.
+Choose: 2
+Tracking ID: ORD1001
+ORD1001 moved to Sorting Facility.
+Choose: 2
+Tracking ID: ORD1001
+ORD1001 moved to Out-for-Delivery.
+\end{lstlisting}
+\caption{Adding and advancing parcels.}
+\label{fig:run1}
+\end{figure}
+
+\textbf{Example 2: track a parcel.}
+Fig.~\ref{fig:run2} shows the history, the delivery days, and the fee of an
+Express parcel and of an Overnight parcel.
+
+\begin{figure}[h]
+\begin{lstlisting}[style=console]
+Choose: 3
+Tracking ID: ORD1001
+Tracking history for ORD1001 (Express)
+1. Dispatch (Wed Nov 25 19:54:50 IST 2026)
+2. Sorting Facility (Wed Nov 25 19:54:50 IST 2026)
+3. Out-for-Delivery (Wed Nov 25 19:54:50 IST 2026)
+Delivery days: 2
+Base cost: 100.0
+Total fee: 150.0
+Choose: 3
+Tracking ID: ORD1003
+Tracking history for ORD1003 (Overnight)
+1. Dispatch (Wed Nov 25 19:54:50 IST 2026)
+Delivery days: 1
+Base cost: 100.0
+Total fee: 250.0
+\end{lstlisting}
+\caption{Tracking history and fee.}
+\label{fig:run2}
+\end{figure}
+
+\textbf{Example 3: wrong input.}
+Fig.~\ref{fig:run3} shows that the program prints a message and does not
+crash.
+
+\begin{figure}[h]
+\begin{lstlisting}[style=console]
+Choose: 3
+Tracking ID: ABC
+Invalid tracking ID: ABC
+Choose: 3
+Tracking ID: ORD9999
+Parcel not found: ORD9999
+Choose: 1
+Speed (Standard, Express, Overnight): Fast
+Unknown speed: Fast. Use Standard, Express, or Overnight.
+Choose: 2
+Tracking ID: ORD1001
+ORD1001 moved to Delivered.
+Choose: 2
+Tracking ID: ORD1001
+ORD1001 is already delivered.
+Choose: 9
+Choose 1, 2, 3, or 4.
+Choose: 4
+Goodbye.
+\end{lstlisting}
+\caption{Wrong input and the last hub.}
+\label{fig:run3}
+\end{figure}
 
 \section{File Persistence Verification}
-Show the generated logs and text records and explain how they were checked.
+After the run in Example 1 and Example 3, the program created two files.
+Fig.~\ref{fig:files} shows their content. The manifest has the last hub of each
+parcel. The status log has one line for each milestone, in the order they
+happened.
+
+\begin{figure}[h]
+\begin{lstlisting}[style=console]
+manifest.txt
+ORD1001,Express,Delivered
+ORD1002,Standard,Dispatch
+ORD1003,Overnight,Dispatch
+
+status-log.txt
+ORD1001,Dispatch,Wed Nov 25 19:54:50 IST 2026
+ORD1002,Dispatch,Wed Nov 25 19:54:50 IST 2026
+ORD1003,Dispatch,Wed Nov 25 19:54:50 IST 2026
+ORD1001,Sorting Facility,Wed Nov 25 19:54:50 IST 2026
+ORD1001,Out-for-Delivery,Wed Nov 25 19:54:50 IST 2026
+ORD1001,Delivered,Wed Nov 25 19:54:50 IST 2026
+\end{lstlisting}
+\caption{Content of the two text files.}
+\label{fig:files}
+\end{figure}
+
+Then the program started again and the user tracked \texttt{ORD1002}. The program
+showed the history, the delivery days (5), and the fee (100.0) from the saved
+files. So the program loads the manifest and the status log correctly.

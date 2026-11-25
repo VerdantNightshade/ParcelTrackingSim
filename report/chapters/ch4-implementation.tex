@@ -1,13 +1,61 @@
 \chapter{Implementation Details}
 
 \section{Core Packages and Class Modules}
-Describe each package and the main classes in it.
+All classes are in the default package, in the \texttt{src} folder. Chapter 3
+lists the classes. The three speed classes differ only in the delivery days
+and in the fee rule (Table~\ref{tab:fees}). The base cost is 100.
+
+\begin{table}[h]
+\centering
+\caption{Delivery days and fee of each speed.}
+\label{tab:fees}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|l|c|X|c|}
+\hline
+\textbf{Speed} & \textbf{Days} & \textbf{Fee rule} & \textbf{Fee}\\
+\hline
+Standard & 5 & base cost & 100.0\\
+\hline
+Express & 2 & base cost + base cost / days & 150.0\\
+\hline
+Overnight & 1 & base cost + base cost / days + 50 & 250.0\\
+\hline
+\end{tabularx}
+\end{table}
 
 \section{Key Algorithms and Logic Implementation}
-Explain the main algorithms and show short code excerpts where useful.
+\textbf{Creating a parcel.} \texttt{ParcelFactory} compares the speed name and
+returns the matching object, or \texttt{null} for an unknown or \texttt{null}
+speed. \texttt{Tracker} builds the ID from the highest number in use plus one,
+so the first ID is \texttt{ORD1001}. An ID is never used twice, also when the
+manifest has a gap.
+
+\textbf{Moving a parcel.} \texttt{Route.getNext()} finds the current hub in the
+array and returns the next one. At the last hub it returns \texttt{null}, and
+the parcel does not move.
+
+\begin{lstlisting}[style=java]
+public double calculateTotalFee() {      // in ExpressParcel
+    return getBaseCost() + getBaseCost() / getDeliveryDays();
+}
+\end{lstlisting}
 
 \section{Exception Handling Mechanisms}
-Describe the custom exceptions and the input validation.
+\texttt{InvalidTrackingIdException} extends \texttt{Exception} \cite{ref1}. The method
+\texttt{checkId()} throws it if the ID is \texttt{null}, does not start with
+\texttt{ORD}, has no digit after \texttt{ORD}, or has a character that is not a
+digit. The method
+\texttt{findParcel()} throws it if no parcel has that ID. \texttt{Main} catches
+it, prints the message, and shows the menu again.
 
 \section{File I/O Implementation}
-Describe how the program reads and writes its text files.
+\texttt{ManifestStore} uses \texttt{FileWriter}, \texttt{PrintWriter}, and
+\texttt{Scanner} \cite{ref1}. \texttt{saveManifest()} writes all parcels and replaces the
+old file. \texttt{appendLog()} opens the log in append mode and adds one line.
+At start, \texttt{loadManifest()} reads the manifest and rebuilds each parcel.
+\texttt{loadHistory()} then reads the log and gives each parcel its
+milestones. If a file does not exist, the program starts with no data.
+
+Every file and every \texttt{Scanner} is opened with try-with-resources. Java
+closes it when the block ends, also after an error. \texttt{Main} opens its
+\texttt{Scanner} the same way.

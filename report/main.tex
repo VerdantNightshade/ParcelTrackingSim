@@ -13,6 +13,46 @@
 \usepackage{titlesec}
 \usepackage{tocloft}
 \usepackage[hidelinks]{hyperref} % no underline, no colored boxes
+\usepackage{subcaption}          % side-by-side figures
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,shapes.geometric}
+\usepackage{listings}
+\usepackage{etoolbox}
+
+% ---------- Colors for diagrams and code ----------
+\definecolor{uiFill}{HTML}{DDEBF7}      \definecolor{uiLine}{HTML}{2F6DA3}
+\definecolor{logicFill}{HTML}{FCE4D0}   \definecolor{logicLine}{HTML}{C55A11}
+\definecolor{modelFill}{HTML}{E2F0D9}   \definecolor{modelLine}{HTML}{548235}
+\definecolor{absFill}{HTML}{E4DFEC}     \definecolor{absLine}{HTML}{6B4C9A}
+\definecolor{storeFill}{HTML}{FFF2CC}   \definecolor{storeLine}{HTML}{BF9000}
+\definecolor{errFill}{HTML}{F8D7DA}     \definecolor{errLine}{HTML}{B02A37}
+\definecolor{codeBg}{HTML}{F5F5F5}
+\definecolor{codeKw}{HTML}{1F4E9E}
+\definecolor{codeCom}{HTML}{2E7D32}
+\definecolor{codeStr}{HTML}{B35900}
+
+\tikzset{
+  box/.style={draw,rounded corners=2pt,thick,align=center,font=\footnotesize,
+              minimum height=1cm,text width=2.6cm,inner sep=3pt},
+  ui/.style={box,fill=uiFill,draw=uiLine},
+  logic/.style={box,fill=logicFill,draw=logicLine},
+  model/.style={box,fill=modelFill,draw=modelLine},
+  abs/.style={box,fill=absFill,draw=absLine},
+  store/.style={box,fill=storeFill,draw=storeLine},
+  err/.style={box,fill=errFill,draw=errLine},
+  assoc/.style={-{Stealth[length=2.5mm]},thick},
+  dep/.style={-{Stealth[length=2.5mm]},thick,dashed},
+  inherit/.style={-{Triangle[open,length=3.5mm,width=3.5mm]},thick,absLine},
+  elabel/.style={midway,font=\scriptsize,fill=white,inner sep=1pt},
+}
+
+\lstdefinestyle{java}{language=Java,basicstyle=\ttfamily,
+  keywordstyle=\color{codeKw},commentstyle=\color{codeCom},
+  stringstyle=\color{codeStr},backgroundcolor=\color{codeBg},frame=single,
+  rulecolor=\color{gray},showstringspaces=false,breaklines=true}
+\lstdefinestyle{console}{basicstyle=\ttfamily,
+  backgroundcolor=\color{codeBg},frame=single,rulecolor=\color{gray},
+  showstringspaces=false,breaklines=true}
 
 \onehalfspacing
 
@@ -57,6 +97,17 @@
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{8pt plus 1pt}
 
+% Pages that hold only floats start at the top, not in the middle.
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{12pt}
+\setlength{\@fpbot}{0pt plus 1fil}
+% LaTeX adds a gap in the lists of figures and tables before each chapter.
+% Remove it so that all entries have the same spacing.
+\patchcmd{\@chapter}{\addtocontents{lof}{\protect\addvspace{10\p@}}}{}{}{}
+\patchcmd{\@chapter}{\addtocontents{lot}{\protect\addvspace{10\p@}}}{}{}{}
+\makeatother
+
 \begin{document}
 
 % ---------- Front matter (roman page numbers) ----------
@@ -97,8 +148,5 @@
 
 % ---------- References (IEEE style) ----------
 \input{chapters/references}
-
-% ---------- Plagiarism report ----------
-\input{frontmatter/plagiarism}
 
 \end{document}

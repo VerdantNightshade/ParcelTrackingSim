@@ -1,14 +1,25 @@
 \chapter{Introduction}
 
 \section{Motivation}
-State why this project was chosen and what problem it solves.
+Courier companies must know where each parcel is at any time. This project
+builds a small simulator of that task. It lets the group practice the main
+ideas of the Object-Oriented Programming Lab in one working program.
 
 \section{Background}
-Describe the concepts a reader needs first, such as parcel tracking and the
-object-oriented ideas used in the project.
+A parcel moves through four hubs in a fixed order: Dispatch, Sorting Facility,
+Out-for-Delivery, and Delivered. Each move is a milestone (one event in the
+history of a parcel). The program saves every milestone in a text file.
+
+The program uses these object-oriented ideas: classes and objects,
+inheritance, abstract methods, polymorphism, exception handling, and file
+input and output.
 
 \section{Summary of present work}
-Summarize what the group built and the main results.
+The group built a command-line program in core Java. The user can add a
+parcel, move it to the next hub, and see its tracking history. There are three
+shipment speeds: Standard, Express, and Overnight. The program rejects invalid
+tracking IDs with a custom exception. It saves the parcels and the events in
+text files, so the data is still there after the program restarts.
 
 \section{Organization of the report}
 Chapter 2 states the problem and the requirements. Chapter 3 describes the
@@ -16,4 +27,7 @@ design. Chapter 4 explains the implementation. Chapter 5 presents testing and
 results. Chapter 6 gives the conclusions and Chapter 7 gives the future scope.
 
 \section{Hardware/Software used}
-List the JDK version, the IDE, and the operating system used by the group.
+The program uses core Java only. It uses no database and no outside library.
+The group wrote the code in Visual Studio Code and kept the project in a
+GitHub repository. The tests are Java classes that one script runs. The Java documentation
+and tutorials \cite{ref1,ref2,ref3} were the main references.
