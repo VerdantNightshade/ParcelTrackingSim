@@ -47,17 +47,18 @@ jobs:
           cp website/index.html _site/index.html
           cp "$REPORT_FOLDER/${ROOT_FILE%.tex}.pdf" _site/report.pdf
 
-      - name: Fill in the placeholders
+      - name: Fill in the preview values
         run: |
+          # The page holds dummy values for the local preview.
+          # Replace each dummy value with the real build value.
           sed -i \
-            -e "s|{{REPO_URL}}|https://github.com/${GITHUB_REPOSITORY}|g" \
-            -e "s|{{COMMIT_SHA}}|${GITHUB_SHA::7}|g" \
-            -e "s|{{BUILD_DATE}}|$(date -u +%Y-%m-%d)|g" \
+            -e "s|https://github.com/dev/preview|https://github.com/${GITHUB_REPOSITORY}|g" \
+            -e "s|0000000|${GITHUB_SHA::7}|g" \
+            -e "s|0000-00-00|$(date -u +%Y-%m-%d)|g" \
             _site/index.html
-          # Stop the build if a placeholder is still in the page.
-          if grep -q '{{' _site/index.html; then
-            echo "Unfilled placeholder in index.html:"
-            grep -n '{{' _site/index.html
+          # Stop the build if a dummy value is still in the page.
+          if grep -nE 'dev/preview|0000000|0000-00-00' _site/index.html; then
+            echo "Dummy value still in index.html"
             exit 1
           fi
 

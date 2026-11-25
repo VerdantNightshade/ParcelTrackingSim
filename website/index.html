@@ -1,70 +1,290 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Courier and Parcel Tracking Simulator</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Courier and Parcel Tracking Simulator</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+  :root {
+    --paper: #fbf8f1;
+    --ink: #1d2b2a;
+    --muted: #5f6f6d;
+    --rule: #ddd6c6;
+    --tint: #f1ebdc;
+    --page: 42rem;
+    --deep: #0b4f4d;
+    --deep-text: #f3efe4;
+    --deep-muted: #a9c9c5;
+    --coral: #e8553d;
+    --coral-text: #ffffff;
+    --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #101a19;
+      --ink: #e9efed;
+      --muted: #94a8a5;
+      --rule: #263836;
+      --tint: #17252a;
+      --deep: #082d2c;
+      --coral: #f0674f;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    padding: 0 0 clamp(16px, 4vw, 40px);
+  }
+
+  .wrap {
+    max-width: var(--page);
+    margin: 0 auto;
+    padding: 0 clamp(18px, 5vw, 32px);
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    background: var(--deep);
+    color: var(--deep-text);
+    padding: clamp(40px, 10vw, 88px) 0 clamp(36px, 8vw, 64px);
+  }
+
+  .hero small {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    color: var(--deep-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(2.1rem, 7vw, 3.6rem);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+  }
+
+  .hero p {
+    margin: 18px 0 0;
+    color: var(--deep-muted);
+  }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  .actions .btn { flex: 1 1 14rem; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 11px 22px;
+    border-radius: 3px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: 2px solid var(--coral);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .btn.primary { background: var(--coral); color: var(--coral-text); }
+  .btn.primary:hover { background: transparent; color: var(--coral); }
+  .btn.secondary { background: transparent; color: var(--deep-text); border-color: var(--deep-muted); }
+  .btn.secondary:hover { border-color: var(--deep-text); }
+  .btn i { font-size: 1.1rem; line-height: 1; }
+  .btn:focus-visible { outline: 3px solid var(--deep-text); outline-offset: 3px; }
+
+  /* ---------- Sections ---------- */
+  section { padding: clamp(32px, 7vw, 56px) 0 0; }
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 18px;
+    font-family: var(--serif);
+    font-size: clamp(1.4rem, 3.5vw, 1.8rem);
+    font-weight: 600;
+  }
+
+  h2 i { color: var(--coral); font-size: 0.9em; line-height: 1; }
+
+  section p { margin: 0 0 16px; }
+
+  /* ---------- Steps ---------- */
+  .steps {
+    display: flex;
+    margin: 28px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .steps li {
+    position: relative;
+    padding-top: 50px;
+    padding-right: 12px;
+    font-weight: 600;
+  }
+
+  .steps i {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 3px;
+    background: var(--coral);
+    color: var(--coral-text);
+    font-size: 1rem;
+  }
+
+  .steps li::after {
+    content: "";
+    position: absolute;
+    top: 17px;
+    left: 36px;
+    right: 0;
+    height: 2px;
+    background: var(--rule);
+  }
+
+  .steps li { flex: 1 1 auto; }
+  .steps li:last-child { flex: 0 0 auto; padding-right: 0; }
+  .steps li:last-child::after { display: none; }
+
+  @media (max-width: 540px) {
+    .steps { flex-direction: column; }
+    .steps li, .steps li:last-child { flex: none; }
+    .steps li { min-height: 36px; padding: 6px 0 24px 52px; }
+    .steps li::after { top: 36px; bottom: 0; left: 17px; right: auto; width: 2px; height: auto; }
+  }
+
+  /* ---------- Features ---------- */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0 40px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .features li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 0;
+  }
+
+  .features i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 3px;
+    background: var(--tint);
+    color: var(--coral);
+    font-size: 1.1rem;
+  }
+  .features b { color: var(--deep); }
+
+  @media (prefers-color-scheme: dark) { .features b { color: #7fd0c8; } }
+  @media (max-width: 540px) { .features { grid-template-columns: 1fr; } }
+
+  /* ---------- Group ---------- */
+  .group { width: 100%; border-collapse: collapse; }
+  .group th, .group td { padding: 12px 0; vertical-align: middle; text-align: left; }
+  .group th { color: var(--muted); font-size: 0.8rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+  .group td:last-child, .group th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* ---------- Build info ---------- */
+  .hero .meta { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 10px; font-size: 0.85rem; }
+  .hero .meta span { display: inline-flex; align-items: center; gap: 6px; }
+
+  main { padding-bottom: clamp(40px, 8vw, 72px); }
+</style>
 </head>
-<body bgcolor="#FFFFFF" text="#000000" link="#0000EE" vlink="#551A8B">
 
-<center>
-<h1>Courier and Parcel Tracking Simulator</h1>
-<h3>Object-Oriented Programming Lab (PCC-CS593)<br>
-Group 8, Kalyani Government Engineering College</h3>
-</center>
-<hr>
+<body>
 
-<h2>1. About the Project</h2>
-<p>
-This project is a parcel tracking simulator written in Java, with game-like
-elements. It is the project of Group 8 for the Object-Oriented Programming
-Lab.
-</p>
-<p>The program tracks parcels through four hubs and logs each step:</p>
-<p align="center">
-<b>Dispatch</b> &rarr; <b>Sorting Facility</b> &rarr;
-<b>Out-for-Delivery</b> &rarr; <b>Delivered</b>
-</p>
+  <header class="hero">
+    <div class="wrap">
+      <small><i class="bi bi-mortarboard"></i> Object-Oriented Programming Lab (PCC-CS593) &middot; Group 8</small>
+      <h1>Courier and Parcel Tracking Simulator</h1>
+      <p>Kalyani Government Engineering College</p>
+      <p class="meta">
+        <span><i class="bi bi-git"></i> Build 0000000</span>
+        <span><i class="bi bi-calendar3"></i> Published 0000-00-00</span>
+      </p>
+      <div class="actions">
+        <a class="btn primary" href="report.pdf"><i class="bi bi-file-earmark-pdf"></i> Download the report (PDF)</a>
+        <a class="btn secondary" href="https://github.com/dev/preview"><i class="bi bi-github"></i> View the source code</a>
+      </div>
+    </div>
+  </header>
 
-<h2>2. Features</h2>
-<ul>
-  <li>Parcels have one of three speeds: Standard, Express, or Overnight.</li>
-  <li>The program rejects invalid tracking IDs with an exception.</li>
-  <li>The program saves the shipment manifest and the status log in text files.</li>
-  <li>The program prints the tracking history of a parcel in the terminal.</li>
-</ul>
+  <main class="wrap">
 
-<h2>3. Rules</h2>
-<ul>
-  <li>Core Java only.</li>
-  <li>No database. The program uses text files or in-memory data.</li>
-</ul>
+    <section>
+      <h2><i class="bi bi-box-seam"></i> About</h2>
+      <p>A parcel tracking simulator written in Java, with game-like elements. The program tracks parcels through four hubs and logs each step.</p>
+      <ol class="steps">
+        <li><i class="bi bi-box-arrow-up"></i>Dispatch</li>
+        <li><i class="bi bi-signpost-split"></i>Sorting Facility</li>
+        <li><i class="bi bi-truck"></i>Out-for-Delivery</li>
+        <li><i class="bi bi-check-lg"></i>Delivered</li>
+      </ol>
+    </section>
 
-<h2>4. Project Report</h2>
-<p>
-<a href="report.pdf">Download the project report (PDF)</a>
-</p>
+    <section>
+      <h2><i class="bi bi-check2-square"></i> Features</h2>
+      <ul class="features">
+        <li><i class="bi bi-speedometer2"></i><span>Three <b>parcel speeds</b>: Standard, Express, and Overnight.</span></li>
+        <li><i class="bi bi-shield-exclamation"></i><span>Invalid <b>tracking IDs</b> are rejected with an exception.</span></li>
+        <li><i class="bi bi-file-earmark-text"></i><span>The <b>manifest</b> and the status log are saved in text files.</span></li>
+        <li><i class="bi bi-clock-history"></i><span>The <b>tracking history</b> of a parcel prints in the terminal.</span></li>
+        <li><i class="bi bi-code-slash"></i><span><b>Core Java</b> only, with no database.</span></li>
+      </ul>
+    </section>
 
-<h2>5. Source Code</h2>
-<p>
-<a href="{{REPO_URL}}">{{REPO_URL}}</a>
-</p>
+    <section>
+      <h2><i class="bi bi-people"></i> Group 8</h2>
+      <table class="group">
+        <tr><th>Name</th><th>Roll number</th></tr>
+        <tr><td>Arunava Roy</td><td>10200124034</td></tr>
+        <tr><td>Dwaipayan Datta</td><td>10200124065</td></tr>
+        <tr><td>Aayudh Chattarjee</td><td>10200124032</td></tr>
+        <tr><td>Nirjhar Debnath</td><td>10200124021</td></tr>
+        <tr><td>Agniva Hait</td><td>10200124041</td></tr>
+      </table>
+    </section>
 
-<h2>6. Group 8</h2>
-<table border="1" cellpadding="4" cellspacing="0">
-  <tr><th align="left">Name</th><th align="left">Roll number</th></tr>
-  <tr><td>Arunava Roy</td><td>10200124034</td></tr>
-  <tr><td>Dwaipayan Datta</td><td>10200124065</td></tr>
-  <tr><td>Aayudh Chattarjee</td><td>10200124032</td></tr>
-  <tr><td>Nirjhar Debnath</td><td>10200124021</td></tr>
-  <tr><td>Agniva Hait</td><td>10200124041</td></tr>
-</table>
-
-<hr>
-<center>
-<font size="2">Build {{COMMIT_SHA}}, published {{BUILD_DATE}}.</font>
-</center>
+  </main>
 
 </body>
 </html>
