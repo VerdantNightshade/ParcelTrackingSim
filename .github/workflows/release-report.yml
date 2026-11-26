@@ -3,11 +3,6 @@ name: Build Report PDF and DOCX
 # Run on every push to main that changes a file in the report folder.
 # You can also start it by hand from the Actions tab.
 on:
-  push:
-    branches: [main]
-    paths:
-      - "report/**"
-      - ".github/workflows/release-report.yml"
   workflow_dispatch:
 
 # The folder with the LaTeX files and the main file in it.
